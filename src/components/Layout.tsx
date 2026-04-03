@@ -50,7 +50,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   {item.label}
                 </Link>
               );
+            {navItems.map((item) => {
+              // ... existing nav items
             })}
+            <button
+              onClick={toggleTheme}
+              className="ml-2 p-2 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            </button>
           </nav>
         </div>
       </header>
