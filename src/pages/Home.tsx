@@ -1,17 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAppStore } from "@/lib/store";
-import { Layers, HelpCircle, Map, MessageCircle, Loader2, Youtube } from "lucide-react";
+import { Layers, HelpCircle, Map, MessageCircle, Loader2, Youtube, Clock, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function Home() {
   const [url, setUrl] = useState("");
-  const { isLoading, setLoading, addSession } = useAppStore();
+  const { isLoading, setLoading, addSession, sessions, sessionsLoaded, loadSessions, selectSession, deleteSession } = useAppStore();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!sessionsLoaded) loadSessions();
+  }, [sessionsLoaded, loadSessions]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +31,7 @@ export default function Home() {
       if (data?.error) throw new Error(data.error);
 
       addSession(data.session);
+      setUrl("");
       toast({ title: "Study materials ready!", description: "Your flashcards, quiz, and roadmap have been generated." });
       navigate("/flashcards");
     } catch (err: any) {
@@ -34,6 +39,17 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSelectSession = (id: string) => {
+    selectSession(id);
+    navigate("/dashboard");
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    await deleteSession(id);
+    toast({ title: "Session deleted" });
   };
 
   const features = [
@@ -78,7 +94,7 @@ export default function Home() {
         </Button>
       </form>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-14">
         {features.map((f) => (
           <div key={f.title} className="rounded-xl border bg-card p-5 flex items-start gap-4">
             <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
@@ -91,6 +107,43 @@ export default function Home() {
           </div>
         ))}
       </div>
+
+      {/* Session History */}
+      {sessions.length > 0 && (
+        <div>
+          <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+            <Clock className="h-5 w-5 text-primary" />
+            Study History
+          </h2>
+          <div className="space-y-3">
+            {sessions.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => handleSelectSession(s.id)}
+                className="w-full rounded-xl border bg-card p-4 flex items-center justify-between hover:border-primary transition-colors text-left group"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-foreground truncate">{s.title}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {new Date(s.createdAt).toLocaleDateString(undefined, {
+                      month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit",
+                    })}
+                    {" · "}
+                    {s.flashcards.length} cards · {s.quizQuestions.length} questions · {s.roadmap.length} steps
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => handleDelete(e, s.id)}
+                  className="ml-3 p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all"
+                  aria-label="Delete session"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
