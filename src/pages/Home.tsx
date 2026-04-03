@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAppStore } from "@/lib/store";
 import { Layers, HelpCircle, Map, MessageCircle, Loader2, Youtube, Clock, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -60,7 +61,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="container max-w-3xl py-12 md:py-20 px-4">
+    <div className="container max-w-3xl py-12 md:py-20 px-4 animate-fade-in">
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-accent-foreground mb-4">
           <Youtube className="h-4 w-4" />
@@ -95,8 +96,8 @@ export default function Home() {
       </form>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-14">
-        {features.map((f) => (
-          <div key={f.title} className="rounded-xl border bg-card p-5 flex items-start gap-4">
+        {features.map((f, i) => (
+          <div key={f.title} className={cn("rounded-xl border bg-card p-5 flex items-start gap-4 hover-lift opacity-0 animate-fade-in-up", `stagger-${i + 1}`)}>
             <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
               <f.icon className="h-5 w-5 text-primary" />
             </div>
@@ -116,11 +117,11 @@ export default function Home() {
             Study History
           </h2>
           <div className="space-y-3">
-            {sessions.map((s) => (
+            {sessions.map((s, i) => (
               <button
                 key={s.id}
                 onClick={() => handleSelectSession(s.id)}
-                className="w-full rounded-xl border bg-card p-4 flex items-center justify-between hover:border-primary transition-colors text-left group"
+                className={cn("w-full rounded-xl border bg-card p-4 flex items-center justify-between hover:border-primary transition-all text-left group hover-lift opacity-0 animate-fade-in-up", `stagger-${Math.min(i + 1, 8)}`)}
               >
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-foreground truncate">{s.title}</p>
