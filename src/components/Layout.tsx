@@ -14,7 +14,7 @@ const navItems = [
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
   const session = useAppStore((s) => s.currentSession);
 
   return (
