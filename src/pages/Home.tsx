@@ -60,7 +60,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="container max-w-3xl py-12 md:py-20 px-4">
+    <div className="container max-w-3xl py-12 md:py-20 px-4 animate-fade-in">
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-accent-foreground mb-4">
           <Youtube className="h-4 w-4" />
