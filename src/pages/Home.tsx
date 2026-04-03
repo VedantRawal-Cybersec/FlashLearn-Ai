@@ -68,7 +68,8 @@ export default function Home() {
           YouTube → Study Materials
         </div>
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4">
-          Learn smarter with <span className="text-primary">Flash Study</span>
+          Transform YouTube Videos into{" "}
+          <span className="text-primary">Structured Study Material</span>
         </h1>
         <p className="text-lg text-muted-foreground max-w-xl mx-auto">
           Paste a YouTube URL and instantly get flashcards, quizzes, a learning roadmap, and an AI tutor — all powered by AI.
