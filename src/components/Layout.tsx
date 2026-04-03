@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <BookOpen className="h-4 w-4 text-primary-foreground" />
+              <Zap className="h-4 w-4 text-primary-foreground fill-primary-foreground" />
             </div>
             <span className="text-lg font-bold text-foreground">Flash Study</span>
           </Link>

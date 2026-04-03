@@ -72,7 +72,7 @@ export default function Home() {
           <span className="text-primary">Structured Study Material</span>
         </h1>
         <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-          Paste a YouTube URL and instantly get flashcards, quizzes, a learning roadmap, and an AI tutor — all powered by AI.
+          Convert any educational video into AI-powered flashcards, quizzes, notes, and personalized learning roadmaps in seconds.
         </p>
       </div>
 
