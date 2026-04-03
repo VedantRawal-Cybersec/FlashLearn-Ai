@@ -95,8 +95,8 @@ export default function Home() {
       </form>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-14">
-        {features.map((f) => (
-          <div key={f.title} className="rounded-xl border bg-card p-5 flex items-start gap-4">
+        {features.map((f, i) => (
+          <div key={f.title} className={cn("rounded-xl border bg-card p-5 flex items-start gap-4 hover-lift opacity-0 animate-fade-in-up", `stagger-${i + 1}`)}>
             <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
               <f.icon className="h-5 w-5 text-primary" />
             </div>
