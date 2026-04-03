@@ -91,7 +91,10 @@ export default function Home() {
               Generating…
             </>
           ) : (
-            "Generate"
+            <>
+              <Zap className="h-4 w-4 fill-current" />
+              Generate
+            </>
           )}
         </Button>
       </form>

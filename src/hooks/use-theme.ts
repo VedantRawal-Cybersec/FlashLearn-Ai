@@ -7,7 +7,7 @@ export function useTheme() {
     if (typeof window !== "undefined") {
       return (localStorage.getItem("theme") as Theme) || "dark";
     }
-    return "light";
+    return "dark";
   });
 
   useEffect(() => {
