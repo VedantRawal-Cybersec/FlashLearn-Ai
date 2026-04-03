@@ -5,7 +5,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { useAppStore } from "@/lib/store";
 
 const navItems = [
-  { path: "/", label: "Home", icon: BookOpen },
+  { path: "/", label: "Home", icon: Zap },
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/flashcards", label: "Flashcards", icon: Layers },
   { path: "/quiz", label: "Quiz", icon: HelpCircle },
