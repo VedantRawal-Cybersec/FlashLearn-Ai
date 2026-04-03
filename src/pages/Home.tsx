@@ -117,11 +117,11 @@ export default function Home() {
             Study History
           </h2>
           <div className="space-y-3">
-            {sessions.map((s) => (
+            {sessions.map((s, i) => (
               <button
                 key={s.id}
                 onClick={() => handleSelectSession(s.id)}
-                className="w-full rounded-xl border bg-card p-4 flex items-center justify-between hover:border-primary transition-colors text-left group"
+                className={cn("w-full rounded-xl border bg-card p-4 flex items-center justify-between hover:border-primary transition-all text-left group hover-lift opacity-0 animate-fade-in-up", `stagger-${Math.min(i + 1, 8)}`)}
               >
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-foreground truncate">{s.title}</p>
