@@ -1,11 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, Sun, Moon, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
 import { useAppStore } from "@/lib/store";
 
 const navItems = [
-  { path: "/", label: "Home", icon: BookOpen },
+  { path: "/", label: "Home", icon: Zap },
   { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/flashcards", label: "Flashcards", icon: Layers },
   { path: "/quiz", label: "Quiz", icon: HelpCircle },
@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <BookOpen className="h-4 w-4 text-primary-foreground" />
+              <Zap className="h-4 w-4 text-primary-foreground fill-primary-foreground" />
             </div>
             <span className="text-lg font-bold text-foreground">Flash Study</span>
           </Link>

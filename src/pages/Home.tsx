@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAppStore } from "@/lib/store";
-import { Layers, HelpCircle, Map, MessageCircle, Loader2, Youtube, Clock, Trash2 } from "lucide-react";
+import { Layers, HelpCircle, Map, MessageCircle, Loader2, Youtube, Clock, Trash2, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,10 +68,11 @@ export default function Home() {
           YouTube → Study Materials
         </div>
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4">
-          Learn smarter with <span className="text-primary">Flash Study</span>
+          Transform YouTube Videos into{" "}
+          <span className="text-primary">Structured Study Material</span>
         </h1>
         <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-          Paste a YouTube URL and instantly get flashcards, quizzes, a learning roadmap, and an AI tutor — all powered by AI.
+          Convert any educational video into AI-powered flashcards, quizzes, notes, and personalized learning roadmaps in seconds.
         </p>
       </div>
 
@@ -90,7 +91,10 @@ export default function Home() {
               Generating…
             </>
           ) : (
-            "Generate"
+            <>
+              <Zap className="h-4 w-4 fill-current" />
+              Generate
+            </>
           )}
         </Button>
       </form>
