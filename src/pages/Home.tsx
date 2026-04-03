@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAppStore } from "@/lib/store";
-import { Layers, HelpCircle, Map, MessageCircle, Loader2, Youtube, Clock, Trash2 } from "lucide-react";
+import { Layers, HelpCircle, Map, MessageCircle, Loader2, Youtube, Clock, Trash2, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
