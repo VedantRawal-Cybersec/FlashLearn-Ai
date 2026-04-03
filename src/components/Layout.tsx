@@ -14,6 +14,7 @@ const navItems = [
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const session = useAppStore((s) => s.currentSession);
 
@@ -27,32 +28,32 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
             <span className="text-lg font-bold text-foreground">Flash Study</span>
           </Link>
-          <nav className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-              const disabled = item.path !== "/" && !session;
-              return (
-                <Link
-                  key={item.path}
-                  to={disabled ? "#" : item.path}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : disabled
-                      ? "text-muted-foreground cursor-not-allowed opacity-50"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                  )}
-                  onClick={(e) => disabled && e.preventDefault()}
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              );
-            {navItems.map((item) => {
-              // ... existing nav items
-            })}
+          <div className="hidden md:flex items-center gap-1">
+            <nav className="flex items-center gap-1">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.path;
+                const disabled = item.path !== "/" && !session;
+                return (
+                  <Link
+                    key={item.path}
+                    to={disabled ? "#" : item.path}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-primary text-primary-foreground"
+                        : disabled
+                        ? "text-muted-foreground cursor-not-allowed opacity-50"
+                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    )}
+                    onClick={(e) => disabled && e.preventDefault()}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
             <button
               onClick={toggleTheme}
               className="ml-2 p-2 rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -60,7 +61,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             >
               {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </button>
-          </nav>
+          </div>
         </div>
       </header>
 
@@ -89,6 +90,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </Link>
           );
         })}
+        <button
+          onClick={toggleTheme}
+          className="flex flex-col items-center gap-0.5 px-2 py-1 text-xs rounded-lg text-muted-foreground"
+          aria-label="Toggle theme"
+        >
+          {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+          Theme
+        </button>
       </nav>
 
       <main className="flex-1 pb-20 md:pb-0">{children}</main>
