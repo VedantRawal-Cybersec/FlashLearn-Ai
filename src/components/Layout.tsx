@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, Sun, Moon, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
 import { useAppStore } from "@/lib/store";
