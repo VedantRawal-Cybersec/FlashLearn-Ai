@@ -19,50 +19,211 @@ function extractVideoId(url: string): string | null {
   return null;
 }
 
-async function getTranscript(videoId: string): Promise<string> {
-  // Try multiple transcript APIs as fallbacks
-  const apis = [
-    `https://yt.lemnoslife.com/noKey/captions?part=snippet&videoId=${videoId}`,
-  ];
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&nbsp;/g, " ")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
+}
 
-  // Primary: scrape YouTube page for captions
+// Fallback 1: Scrape YouTube page for captions
+async function tryYouTubeScrape(videoId: string): Promise<{ title: string; transcript: string } | null> {
   try {
-    const pageResp = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+    const resp = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" },
     });
-    const html = await pageResp.text();
-    
-    // Extract title
+    const html = await resp.text();
     const titleMatch = html.match(/<title>(.*?)<\/title>/);
-    const title = titleMatch ? titleMatch[1].replace(" - YouTube", "").trim() : "Video";
+    const title = titleMatch ? titleMatch[1].replace(" - YouTube", "").trim() : "";
 
-    // Try to get captions URL from page data
     const captionMatch = html.match(/"captionTracks":\s*(\[.*?\])/);
-    if (captionMatch) {
-      const tracks = JSON.parse(captionMatch[1]);
-      const enTrack = tracks.find((t: any) => t.languageCode === "en") || tracks[0];
-      if (enTrack?.baseUrl) {
-        const captionResp = await fetch(enTrack.baseUrl);
-        const captionXml = await captionResp.text();
-        // Parse XML captions
-        const textParts = captionXml.match(/<text[^>]*>(.*?)<\/text>/gs);
-        if (textParts && textParts.length > 0) {
-          const transcript = textParts
-            .map((t: string) => t.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;/g, "'").replace(/&quot;/g, '"'))
-            .join(" ");
-          return JSON.stringify({ title, transcript });
+    if (!captionMatch) return title ? { title, transcript: "" } : null;
+
+    const tracks = JSON.parse(captionMatch[1]);
+    const enTrack = tracks.find((t: any) => t.languageCode === "en") || tracks[0];
+    if (!enTrack?.baseUrl) return title ? { title, transcript: "" } : null;
+
+    const captionResp = await fetch(enTrack.baseUrl);
+    const xml = await captionResp.text();
+    const parts = xml.match(/<text[^>]*>(.*?)<\/text>/gs);
+    if (!parts?.length) return title ? { title, transcript: "" } : null;
+
+    const transcript = parts.map((t: string) => decodeHtmlEntities(t.replace(/<[^>]+>/g, ""))).join(" ");
+    return { title, transcript };
+  } catch (e) {
+    console.error("Fallback 1 (YouTube scrape) failed:", e);
+    return null;
+  }
+}
+
+// Fallback 2: Piped API (privacy-friendly YouTube frontend)
+async function tryPipedAPI(videoId: string): Promise<{ title: string; transcript: string } | null> {
+  const instances = [
+    "https://pipedapi.kavin.rocks",
+    "https://pipedapi.adminforge.de",
+    "https://pipedapi.in.projectsegfau.lt",
+  ];
+  for (const base of instances) {
+    try {
+      const resp = await fetch(`${base}/streams/${videoId}`, { signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) { await resp.text(); continue; }
+      const data = await resp.json();
+      const title = data.title || "";
+
+      // Try to get subtitles
+      if (data.subtitles?.length) {
+        const enSub = data.subtitles.find((s: any) => s.code === "en") || data.subtitles[0];
+        if (enSub?.url) {
+          const subResp = await fetch(enSub.url, { signal: AbortSignal.timeout(5000) });
+          const subText = await subResp.text();
+          // Parse VTT or XML
+          if (subText.includes("WEBVTT")) {
+            const transcript = subText.replace(/WEBVTT.*?\n\n/s, "")
+              .replace(/\d{2}:\d{2}[\d:.]+\s*-->\s*\d{2}:\d{2}[\d:.]+\n?/g, "")
+              .replace(/<[^>]+>/g, "").replace(/\n+/g, " ").trim();
+            if (transcript.length > 50) return { title, transcript };
+          } else {
+            const parts = subText.match(/<text[^>]*>(.*?)<\/text>/gs);
+            if (parts?.length) {
+              const transcript = parts.map((t: string) => decodeHtmlEntities(t.replace(/<[^>]+>/g, ""))).join(" ");
+              if (transcript.length > 50) return { title, transcript };
+            }
+          }
         }
       }
+
+      // Use description as fallback content
+      if (data.description && title) {
+        return { title, transcript: data.description };
+      }
+    } catch (e) {
+      console.error(`Piped instance ${base} failed:`, e);
     }
+  }
+  return null;
+}
+
+// Fallback 3: LemnosLife API
+async function tryLemnosLife(videoId: string): Promise<{ title: string; transcript: string } | null> {
+  try {
+    const resp = await fetch(`https://yt.lemnoslife.com/noKey/captions?part=snippet&videoId=${videoId}`, {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!resp.ok) { await resp.text(); return null; }
+    const data = await resp.json();
+    const items = data?.items;
+    if (!items?.length) return null;
+
+    const enItem = items.find((i: any) => i.snippet?.language === "en") || items[0];
+    if (!enItem?.snippet?.baseUrl) return null;
+
+    const captionResp = await fetch(enItem.snippet.baseUrl, { signal: AbortSignal.timeout(5000) });
+    const xml = await captionResp.text();
+    const parts = xml.match(/<text[^>]*>(.*?)<\/text>/gs);
+    if (!parts?.length) return null;
+
+    const transcript = parts.map((t: string) => decodeHtmlEntities(t.replace(/<[^>]+>/g, ""))).join(" ");
+    return { title: "", transcript };
   } catch (e) {
-    console.error("Primary transcript method failed:", e);
+    console.error("Fallback 3 (LemnosLife) failed:", e);
+    return null;
+  }
+}
+
+// Fallback 4: Invidious API
+async function tryInvidious(videoId: string): Promise<{ title: string; transcript: string } | null> {
+  const instances = [
+    "https://inv.nadeko.net",
+    "https://invidious.fdn.fr",
+    "https://vid.puffyan.us",
+  ];
+  for (const base of instances) {
+    try {
+      const resp = await fetch(`${base}/api/v1/videos/${videoId}`, { signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) { await resp.text(); continue; }
+      const data = await resp.json();
+      const title = data.title || "";
+      const description = data.description || "";
+
+      // Try captions
+      if (data.captions?.length) {
+        const enCap = data.captions.find((c: any) => c.language_code === "en") || data.captions[0];
+        if (enCap?.url) {
+          const capUrl = enCap.url.startsWith("http") ? enCap.url : `${base}${enCap.url}`;
+          const capResp = await fetch(capUrl, { signal: AbortSignal.timeout(5000) });
+          const capText = await capResp.text();
+          const parts = capText.match(/<text[^>]*>(.*?)<\/text>/gs);
+          if (parts?.length) {
+            const transcript = parts.map((t: string) => decodeHtmlEntities(t.replace(/<[^>]+>/g, ""))).join(" ");
+            if (transcript.length > 50) return { title, transcript };
+          }
+        }
+      }
+
+      if (description.length > 100) return { title, transcript: description };
+    } catch (e) {
+      console.error(`Invidious instance ${base} failed:`, e);
+    }
+  }
+  return null;
+}
+
+// Fallback 5: YouTube oEmbed (title only) + noembed
+async function tryOEmbed(videoId: string): Promise<{ title: string; transcript: string } | null> {
+  try {
+    const resp = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`, {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!resp.ok) { await resp.text(); return null; }
+    const data = await resp.json();
+    if (data.title) return { title: data.title, transcript: "" };
+  } catch (e) {
+    console.error("Fallback 5 (oEmbed) failed:", e);
+  }
+  return null;
+}
+
+async function getTranscript(videoId: string): Promise<{ title: string; transcript: string }> {
+  console.log(`Getting transcript for video: ${videoId}`);
+
+  // Try each fallback in order
+  const result1 = await tryYouTubeScrape(videoId);
+  if (result1?.transcript && result1.transcript.length > 50) {
+    console.log("Got transcript via YouTube scrape");
+    return result1;
+  }
+  const scrapedTitle = result1?.title || "";
+
+  const result2 = await tryPipedAPI(videoId);
+  if (result2?.transcript && result2.transcript.length > 50) {
+    console.log("Got transcript via Piped API");
+    return { title: result2.title || scrapedTitle, transcript: result2.transcript };
   }
 
-  // Fallback: use basic video info
-  return JSON.stringify({
-    title: `YouTube Video ${videoId}`,
-    transcript: `This is a video with ID ${videoId}. Please generate educational content about common topics that might be covered in an educational video. Focus on creating useful study materials.`,
-  });
+  const result3 = await tryLemnosLife(videoId);
+  if (result3?.transcript && result3.transcript.length > 50) {
+    console.log("Got transcript via LemnosLife");
+    return { title: scrapedTitle || result3.title, transcript: result3.transcript };
+  }
+
+  const result4 = await tryInvidious(videoId);
+  if (result4?.transcript && result4.transcript.length > 50) {
+    console.log("Got transcript via Invidious");
+    return { title: result4.title || scrapedTitle, transcript: result4.transcript };
+  }
+
+  // Fallback: use title from any source + ask AI to work with what we have
+  const result5 = await tryOEmbed(videoId);
+  const finalTitle = scrapedTitle || result2?.title || result4?.title || result5?.title || `YouTube Video ${videoId}`;
+
+  // Combine any partial content we got
+  const partialContent = [result2?.transcript, result4?.transcript].filter(Boolean).join(" ");
+
+  console.log("Using fallback: title + partial content for AI generation");
+  return {
+    title: finalTitle,
+    transcript: partialContent || `This is a video titled "${finalTitle}". Generate educational study materials based on what this topic likely covers.`,
+  };
 }
 
 serve(async (req) => {
@@ -72,24 +233,19 @@ serve(async (req) => {
     const { videoUrl } = await req.json();
     if (!videoUrl) {
       return new Response(JSON.stringify({ error: "Missing videoUrl" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const videoId = extractVideoId(videoUrl);
     if (!videoId) {
       return new Response(JSON.stringify({ error: "Invalid YouTube URL" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Get transcript
-    const transcriptData = await getTranscript(videoId);
-    const { title, transcript } = JSON.parse(transcriptData);
+    const { title, transcript } = await getTranscript(videoId);
 
-    // Generate study materials with AI
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
@@ -142,10 +298,7 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
                     type: "array",
                     items: {
                       type: "object",
-                      properties: {
-                        front: { type: "string" },
-                        back: { type: "string" },
-                      },
+                      properties: { front: { type: "string" }, back: { type: "string" } },
                       required: ["front", "back"],
                     },
                   },
@@ -165,10 +318,7 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
                     type: "array",
                     items: {
                       type: "object",
-                      properties: {
-                        title: { type: "string" },
-                        description: { type: "string" },
-                      },
+                      properties: { title: { type: "string" }, description: { type: "string" } },
                       required: ["title", "description"],
                     },
                   },
@@ -187,14 +337,12 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
       console.error("AI error:", aiResponse.status, errText);
       if (aiResponse.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limited. Please try again in a moment." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (aiResponse.status === 402) {
         return new Response(JSON.stringify({ error: "AI credits exhausted. Please add funds." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       throw new Error("AI generation failed");
@@ -207,7 +355,6 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
     if (toolCall?.function?.arguments) {
       materials = JSON.parse(toolCall.function.arguments);
     } else {
-      // Fallback: try to parse from content
       const content = aiData.choices?.[0]?.message?.content || "";
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -223,22 +370,13 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
       videoUrl,
       createdAt: new Date().toISOString(),
       flashcards: materials.flashcards.map((c: any, i: number) => ({
-        id: `fc-${i}`,
-        front: c.front,
-        back: c.back,
-        difficulty: null,
+        id: `fc-${i}`, front: c.front, back: c.back, difficulty: null,
       })),
       quizQuestions: materials.quizQuestions.map((q: any, i: number) => ({
-        id: `qq-${i}`,
-        question: q.question,
-        options: q.options,
-        correctIndex: q.correctIndex,
+        id: `qq-${i}`, question: q.question, options: q.options, correctIndex: q.correctIndex,
       })),
       roadmap: materials.roadmap.map((r: any, i: number) => ({
-        id: `rm-${i}`,
-        title: r.title,
-        description: r.description,
-        completed: false,
+        id: `rm-${i}`, title: r.title, description: r.description, completed: false,
       })),
     };
 
