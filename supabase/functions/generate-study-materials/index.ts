@@ -310,7 +310,7 @@ Return this exact JSON structure:
     {"front": "question text", "back": "answer text"}
   ],
   "quizQuestions": [
-    {"question": "question text", "options": ["A", "B", "C", "D"], "correctIndex": 0}
+    {"question": "question text", "options": ["A", "B", "C", "D"], "correctIndex": 0, "explanation": "brief explanation of why the correct answer is right"}
   ],
   "roadmap": [
     {"title": "step title", "description": "what to learn"}
@@ -345,8 +345,9 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
                       question: { type: "string" },
                       options: { type: "array", items: { type: "string" } },
                       correctIndex: { type: "integer" },
+                      explanation: { type: "string" },
                     },
-                    required: ["question", "options", "correctIndex"],
+                    required: ["question", "options", "correctIndex", "explanation"],
                   },
                 },
                 roadmap: {
@@ -400,7 +401,7 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
       id: `fc-${i}`, front: c.front, back: c.back, difficulty: null,
     })),
     quizQuestions: materials.quizQuestions.map((q: any, i: number) => ({
-      id: `qq-${i}`, question: q.question, options: q.options, correctIndex: q.correctIndex,
+      id: `qq-${i}`, question: q.question, options: q.options, correctIndex: q.correctIndex, explanation: q.explanation || "",
     })),
     roadmap: materials.roadmap.map((r: any, i: number) => ({
       id: `rm-${i}`, title: r.title, description: r.description, completed: false,
