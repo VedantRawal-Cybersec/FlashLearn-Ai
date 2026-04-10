@@ -310,7 +310,7 @@ Return this exact JSON structure:
     {"front": "question text", "back": "answer text"}
   ],
   "quizQuestions": [
-    {"question": "question text", "options": ["A", "B", "C", "D"], "correctIndex": 0}
+    {"question": "question text", "options": ["A", "B", "C", "D"], "correctIndex": 0, "explanation": "brief explanation of why the correct answer is right"}
   ],
   "roadmap": [
     {"title": "step title", "description": "what to learn"}
@@ -345,8 +345,9 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
                       question: { type: "string" },
                       options: { type: "array", items: { type: "string" } },
                       correctIndex: { type: "integer" },
+                      explanation: { type: "string" },
                     },
-                    required: ["question", "options", "correctIndex"],
+                    required: ["question", "options", "correctIndex", "explanation"],
                   },
                 },
                 roadmap: {
