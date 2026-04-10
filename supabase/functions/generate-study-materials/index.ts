@@ -403,7 +403,6 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
     quizQuestions: materials.quizQuestions.map((q: any, i: number) => ({
       id: `qq-${i}`, question: q.question, options: q.options, correctIndex: q.correctIndex, explanation: q.explanation || "",
     })),
-    })),
     roadmap: materials.roadmap.map((r: any, i: number) => ({
       id: `rm-${i}`, title: r.title, description: r.description, completed: false,
     })),
