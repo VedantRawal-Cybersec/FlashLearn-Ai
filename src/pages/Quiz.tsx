@@ -119,6 +119,14 @@ export default function Quiz() {
             );
           })}
         </div>
+
+        {answered && q.explanation && (
+          <div className="mt-4 p-4 rounded-xl bg-accent/50 border border-border animate-fade-in">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">💡 Explanation:</span> {q.explanation}
+            </p>
+          </div>
+        )}
       </div>
 
       {answered && (
