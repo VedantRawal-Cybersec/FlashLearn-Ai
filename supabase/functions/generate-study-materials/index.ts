@@ -56,7 +56,7 @@ async function tryYouTubeScrape(videoId: string): Promise<{ title: string; trans
   }
 }
 
-// Fallback 2: Piped API (privacy-friendly YouTube frontend)
+// Fallback 2: Piped API
 async function tryPipedAPI(videoId: string): Promise<{ title: string; transcript: string } | null> {
   const instances = [
     "https://pipedapi.kavin.rocks",
@@ -70,13 +70,11 @@ async function tryPipedAPI(videoId: string): Promise<{ title: string; transcript
       const data = await resp.json();
       const title = data.title || "";
 
-      // Try to get subtitles
       if (data.subtitles?.length) {
         const enSub = data.subtitles.find((s: any) => s.code === "en") || data.subtitles[0];
         if (enSub?.url) {
           const subResp = await fetch(enSub.url, { signal: AbortSignal.timeout(5000) });
           const subText = await subResp.text();
-          // Parse VTT or XML
           if (subText.includes("WEBVTT")) {
             const transcript = subText.replace(/WEBVTT.*?\n\n/s, "")
               .replace(/\d{2}:\d{2}[\d:.]+\s*-->\s*\d{2}:\d{2}[\d:.]+\n?/g, "")
@@ -92,7 +90,6 @@ async function tryPipedAPI(videoId: string): Promise<{ title: string; transcript
         }
       }
 
-      // Use description as fallback content
       if (data.description && title) {
         return { title, transcript: data.description };
       }
@@ -145,7 +142,6 @@ async function tryInvidious(videoId: string): Promise<{ title: string; transcrip
       const title = data.title || "";
       const description = data.description || "";
 
-      // Try captions
       if (data.captions?.length) {
         const enCap = data.captions.find((c: any) => c.language_code === "en") || data.captions[0];
         if (enCap?.url) {
@@ -168,7 +164,7 @@ async function tryInvidious(videoId: string): Promise<{ title: string; transcrip
   return null;
 }
 
-// Fallback 5: YouTube oEmbed (title only) + noembed
+// Fallback 5: YouTube oEmbed
 async function tryOEmbed(videoId: string): Promise<{ title: string; transcript: string } | null> {
   try {
     const resp = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`, {
@@ -186,7 +182,6 @@ async function tryOEmbed(videoId: string): Promise<{ title: string; transcript: 
 async function getTranscript(videoId: string): Promise<{ title: string; transcript: string }> {
   console.log(`Getting transcript for video: ${videoId}`);
 
-  // Try each fallback in order
   const result1 = await tryYouTubeScrape(videoId);
   if (result1?.transcript && result1.transcript.length > 50) {
     console.log("Got transcript via YouTube scrape");
@@ -212,11 +207,8 @@ async function getTranscript(videoId: string): Promise<{ title: string; transcri
     return { title: result4.title || scrapedTitle, transcript: result4.transcript };
   }
 
-  // Fallback: use title from any source + ask AI to work with what we have
   const result5 = await tryOEmbed(videoId);
   const finalTitle = scrapedTitle || result2?.title || result4?.title || result5?.title || `YouTube Video ${videoId}`;
-
-  // Combine any partial content we got
   const partialContent = [result2?.transcript, result4?.transcript].filter(Boolean).join(" ");
 
   console.log("Using fallback: title + partial content for AI generation");
@@ -226,48 +218,91 @@ async function getTranscript(videoId: string): Promise<{ title: string; transcri
   };
 }
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+// Extract text from file using AI vision
+async function extractTextFromFile(
+  fileBase64: string,
+  fileType: string,
+  fileName: string,
+  apiKey: string
+): Promise<{ title: string; content: string }> {
+  console.log(`Extracting text from file: ${fileName} (${fileType})`);
 
-  try {
-    const { videoUrl } = await req.json();
-    if (!videoUrl) {
-      return new Response(JSON.stringify({ error: "Missing videoUrl" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+  const isImage = fileType.startsWith("image/");
+  const isPdf = fileType === "application/pdf";
 
-    const videoId = extractVideoId(videoUrl);
-    if (!videoId) {
-      return new Response(JSON.stringify({ error: "Invalid YouTube URL" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+  if (!isImage && !isPdf) {
+    throw new Error("Unsupported file type. Please upload a PDF or image (PNG, JPG, WEBP).");
+  }
 
-    const { title, transcript } = await getTranscript(videoId);
+  const mediaType = isPdf ? "application/pdf" : fileType;
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          {
-            role: "system",
-            content: `You generate study materials from video transcripts. Return valid JSON only, no markdown.`,
+  const messages: any[] = [
+    {
+      role: "system",
+      content: "You are a document text extractor. Extract ALL text content from the provided document/image. Return the full text faithfully. If it's a diagram or visual, describe it thoroughly.",
+    },
+    {
+      role: "user",
+      content: [
+        {
+          type: "image_url",
+          image_url: {
+            url: `data:${mediaType};base64,${fileBase64}`,
           },
-          {
-            role: "user",
-            content: `Generate study materials from this video transcript.
+        },
+        {
+          type: "text",
+          text: "Extract all text content from this document. Return the complete text as-is. If it contains diagrams, charts, or images, describe them in detail.",
+        },
+      ],
+    },
+  ];
 
-Video: "${title}"
-Transcript: "${transcript.substring(0, 8000)}"
+  const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages,
+    }),
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text();
+    console.error("AI extraction error:", resp.status, errText);
+    throw new Error("Failed to extract text from file");
+  }
+
+  const data = await resp.json();
+  const content = data.choices?.[0]?.message?.content || "";
+  const title = fileName.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+
+  return { title, content };
+}
+
+async function generateStudyMaterials(title: string, content: string, sourceUrl: string, apiKey: string) {
+  const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "google/gemini-3-flash-preview",
+      messages: [
+        {
+          role: "system",
+          content: `You generate study materials from educational content. Return valid JSON only, no markdown.`,
+        },
+        {
+          role: "user",
+          content: `Generate study materials from this content.
+
+Title: "${title}"
+Content: "${content.substring(0, 12000)}"
 
 Return this exact JSON structure:
 {
@@ -283,102 +318,137 @@ Return this exact JSON structure:
 }
 
 Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them educational and specific to the content.`,
-          },
-        ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "create_study_materials",
-              description: "Create structured study materials",
-              parameters: {
-                type: "object",
-                properties: {
-                  flashcards: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: { front: { type: "string" }, back: { type: "string" } },
-                      required: ["front", "back"],
-                    },
-                  },
-                  quizQuestions: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        question: { type: "string" },
-                        options: { type: "array", items: { type: "string" } },
-                        correctIndex: { type: "integer" },
-                      },
-                      required: ["question", "options", "correctIndex"],
-                    },
-                  },
-                  roadmap: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: { title: { type: "string" }, description: { type: "string" } },
-                      required: ["title", "description"],
-                    },
+        },
+      ],
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: "create_study_materials",
+            description: "Create structured study materials",
+            parameters: {
+              type: "object",
+              properties: {
+                flashcards: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: { front: { type: "string" }, back: { type: "string" } },
+                    required: ["front", "back"],
                   },
                 },
-                required: ["flashcards", "quizQuestions", "roadmap"],
+                quizQuestions: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      question: { type: "string" },
+                      options: { type: "array", items: { type: "string" } },
+                      correctIndex: { type: "integer" },
+                    },
+                    required: ["question", "options", "correctIndex"],
+                  },
+                },
+                roadmap: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: { title: { type: "string" }, description: { type: "string" } },
+                    required: ["title", "description"],
+                  },
+                },
               },
+              required: ["flashcards", "quizQuestions", "roadmap"],
             },
           },
-        ],
-        tool_choice: { type: "function", function: { name: "create_study_materials" } },
-      }),
-    });
+        },
+      ],
+      tool_choice: { type: "function", function: { name: "create_study_materials" } },
+    }),
+  });
 
-    if (!aiResponse.ok) {
-      const errText = await aiResponse.text();
-      console.error("AI error:", aiResponse.status, errText);
-      if (aiResponse.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limited. Please try again in a moment." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (aiResponse.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add funds." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      throw new Error("AI generation failed");
-    }
+  if (!aiResponse.ok) {
+    const errText = await aiResponse.text();
+    console.error("AI error:", aiResponse.status, errText);
+    if (aiResponse.status === 429) throw new Error("Rate limited. Please try again in a moment.");
+    if (aiResponse.status === 402) throw new Error("AI credits exhausted. Please add funds.");
+    throw new Error("AI generation failed");
+  }
 
-    const aiData = await aiResponse.json();
-    const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-    let materials;
+  const aiData = await aiResponse.json();
+  const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
+  let materials;
 
-    if (toolCall?.function?.arguments) {
-      materials = JSON.parse(toolCall.function.arguments);
+  if (toolCall?.function?.arguments) {
+    materials = JSON.parse(toolCall.function.arguments);
+  } else {
+    const msgContent = aiData.choices?.[0]?.message?.content || "";
+    const jsonMatch = msgContent.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      materials = JSON.parse(jsonMatch[0]);
     } else {
-      const content = aiData.choices?.[0]?.message?.content || "";
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        materials = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error("Could not parse AI response");
-      }
+      throw new Error("Could not parse AI response");
+    }
+  }
+
+  return {
+    id: crypto.randomUUID(),
+    title,
+    videoUrl: sourceUrl,
+    createdAt: new Date().toISOString(),
+    flashcards: materials.flashcards.map((c: any, i: number) => ({
+      id: `fc-${i}`, front: c.front, back: c.back, difficulty: null,
+    })),
+    quizQuestions: materials.quizQuestions.map((q: any, i: number) => ({
+      id: `qq-${i}`, question: q.question, options: q.options, correctIndex: q.correctIndex,
+    })),
+    roadmap: materials.roadmap.map((r: any, i: number) => ({
+      id: `rm-${i}`, title: r.title, description: r.description, completed: false,
+    })),
+  };
+}
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const body = await req.json();
+    const { videoUrl, fileBase64, fileType, fileName } = body;
+
+    if (!videoUrl && !fileBase64) {
+      return new Response(JSON.stringify({ error: "Provide a YouTube URL or upload a file" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const session = {
-      id: crypto.randomUUID(),
-      title,
-      videoUrl,
-      createdAt: new Date().toISOString(),
-      flashcards: materials.flashcards.map((c: any, i: number) => ({
-        id: `fc-${i}`, front: c.front, back: c.back, difficulty: null,
-      })),
-      quizQuestions: materials.quizQuestions.map((q: any, i: number) => ({
-        id: `qq-${i}`, question: q.question, options: q.options, correctIndex: q.correctIndex,
-      })),
-      roadmap: materials.roadmap.map((r: any, i: number) => ({
-        id: `rm-${i}`, title: r.title, description: r.description, completed: false,
-      })),
-    };
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+
+    let title: string;
+    let content: string;
+    let sourceUrl: string;
+
+    if (fileBase64) {
+      // File upload path
+      const extracted = await extractTextFromFile(fileBase64, fileType, fileName, LOVABLE_API_KEY);
+      title = extracted.title;
+      content = extracted.content;
+      sourceUrl = `file://${fileName}`;
+    } else {
+      // YouTube path
+      const videoId = extractVideoId(videoUrl);
+      if (!videoId) {
+        return new Response(JSON.stringify({ error: "Invalid YouTube URL" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const result = await getTranscript(videoId);
+      title = result.title;
+      content = result.transcript;
+      sourceUrl = videoUrl;
+    }
+
+    const session = await generateStudyMaterials(title, content, sourceUrl, LOVABLE_API_KEY);
 
     return new Response(JSON.stringify({ session }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
