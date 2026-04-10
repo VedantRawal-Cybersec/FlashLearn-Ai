@@ -50,9 +50,19 @@ export default function Quiz() {
                   <p className="font-medium text-foreground text-sm">{i + 1}. {q.question}</p>
                 </div>
                 {!isCorrect && (
-                  <p className="text-sm text-muted-foreground ml-7">
-                    Correct: {q.options[q.correctIndex]}
-                  </p>
+                  <div className="ml-7 mt-1 space-y-1">
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-medium text-foreground">Your answer:</span> {q.options[q.userAnswer!]}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-medium text-success">Correct:</span> {q.options[q.correctIndex]}
+                    </p>
+                    {q.explanation && (
+                      <p className="text-sm text-muted-foreground mt-2 p-3 rounded-lg bg-accent/50 border border-border">
+                        <span className="font-medium text-foreground">💡 Explanation:</span> {q.explanation}
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
             );
