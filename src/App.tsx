@@ -11,6 +11,10 @@ import Quiz from "@/pages/Quiz";
 import Roadmap from "@/pages/Roadmap";
 import Tutor from "@/pages/Tutor";
 import Notes from "@/pages/Notes";
+import ConfusionDetector from "@/pages/ConfusionDetector";
+import ExamPredictor from "@/pages/ExamPredictor";
+import WeaknessAnalyzer from "@/pages/WeaknessAnalyzer";
+import ConceptMap from "@/pages/ConceptMap";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +34,10 @@ const App = () => (
             <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/tutor" element={<Tutor />} />
             <Route path="/notes" element={<Notes />} />
+            <Route path="/confusion" element={<ConfusionDetector />} />
+            <Route path="/exam-predict" element={<ExamPredictor />} />
+            <Route path="/weakness" element={<WeaknessAnalyzer />} />
+            <Route path="/concept-map" element={<ConceptMap />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
