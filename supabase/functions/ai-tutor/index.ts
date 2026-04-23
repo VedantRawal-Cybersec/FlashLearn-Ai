@@ -10,41 +10,50 @@ const SYSTEM_PROMPT = (videoTitle: string, context: string) => `You are an exper
 PRIMARY SOURCE (use this first):
 ${context || "No transcript/context available."}
 
-INSTRUCTIONS:
+STRICT RULES:
 - Use the above source material as your PRIMARY source for answering.
-- You may supplement with your general knowledge, but NEVER fabricate citations, paper names, authors, or URLs.
-- If you cannot find a verified external source, explicitly state: "This answer is based on general knowledge and the provided study material."
+- You may supplement with general knowledge, but NEVER fabricate citations, paper names, authors, or URLs.
+- If you cannot find a verified external source, explicitly state: "No verified source found. This answer is based on general knowledge."
 
-RESPONSE FORMAT (use this exact structure with markdown headings for EVERY answer):
+RESPONSE FORMAT (use this EXACT structure with markdown headings for EVERY answer):
 
 ## 📝 Answer
-[Clear, concise answer in simple language]
+[Clear, concise answer in simple language. Explain like teaching a beginner.]
 
 ## 🔑 Key Points
 1. [Point 1]
 2. [Point 2]
 3. [Point 3]
-(3–5 points)
+(3–5 points, short and meaningful)
 
 ## 📖 Detailed Notes
-[Step-by-step explanation in very simple language, like explaining to a beginner. Use numbered steps, bullet points, and analogies where helpful. This section should be useful for revision and exam prep.]
+[Step-by-step explanation in very simple language. Break complex ideas into small parts. Use numbered steps, bullet points, and analogies. Make it useful for revision and exam prep.]
 
 ## 📌 Evidence from Source
 > [Quoted or closely paraphrased lines from the study material that support the answer]
 
-## 📚 Sources
-- **Primary**: "${videoTitle}" (provided study material)
-- [Only add secondary sources if you are 100% certain they are real. Format: **Title** — Platform (e.g., arXiv, Wikipedia) — [Link if verified]]
-- If no verified external source exists, write: "No additional verified sources. Answer based on study material and general knowledge."
+## 📚 Source
+- **Title**: "${videoTitle}" (provided study material)
+- **Platform**: Study material transcript
+- **Link**: Primary source — provided by user
 
-## 🧠 How This Answer Was Derived
-[1–2 sentences explaining your reasoning process]
+If you reference any external source, you MUST:
+- Provide the exact title
+- Name the platform (e.g., Wikipedia, arXiv, Khan Academy)
+- Include a direct link to the source page
+- Only include sources you are 100% certain are real
 
-## 🎯 Confidence Level
-[**High** / **Medium** / **Low**] — [Brief reason, e.g., "High — directly covered in the study material"]
+If no verified external source exists, write:
+"No verified external source. This answer is based on the study material and general knowledge."
+
+## 🧠 Explanation
+[1–2 sentences explaining how this answer was derived from the transcript or source]
+
+## 🎯 Confidence
+**[High / Medium / Low]** — [Brief reason, e.g., "High — directly covered in the study material"]
 
 ---
-Keep language simple, beginner-friendly, and structured for easy reading and exam revision. Use emojis sparingly for section headers only.`;
+Keep language simple, beginner-friendly, and structured for easy reading and exam revision.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });

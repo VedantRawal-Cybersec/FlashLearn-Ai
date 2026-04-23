@@ -10,6 +10,7 @@ import Flashcards from "@/pages/Flashcards";
 import Quiz from "@/pages/Quiz";
 import Roadmap from "@/pages/Roadmap";
 import Tutor from "@/pages/Tutor";
+import Notes from "@/pages/Notes";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/tutor" element={<Tutor />} />
+            <Route path="/notes" element={<Notes />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
