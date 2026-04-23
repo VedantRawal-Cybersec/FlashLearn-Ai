@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, Sun, Moon, Zap } from "lucide-react";
+import { LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, BookOpen, Sun, Moon, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
 import { useAppStore } from "@/lib/store";
@@ -11,6 +11,7 @@ const navItems = [
   { path: "/quiz", label: "Quiz", icon: HelpCircle },
   { path: "/roadmap", label: "Roadmap", icon: Map },
   { path: "/tutor", label: "AI Tutor", icon: MessageCircle },
+  { path: "/notes", label: "Notes", icon: BookOpen },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
