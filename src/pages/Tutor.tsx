@@ -77,14 +77,14 @@ export default function Tutor() {
               </div>
             )}
             <div
-              className={`rounded-2xl px-4 py-3 max-w-[80%] text-sm ${
+              className={`rounded-2xl px-4 py-3 text-sm ${
                 m.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-foreground"
+                  ? "bg-primary text-primary-foreground max-w-[80%]"
+                  : "bg-muted text-foreground max-w-[95%]"
               }`}
             >
               {m.role === "assistant" ? (
-                <div className="prose prose-sm max-w-none">
+                <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-headings:text-base prose-headings:mt-3 prose-headings:mb-1 prose-p:my-1 prose-li:my-0.5 prose-blockquote:border-primary/40 prose-blockquote:bg-primary/5 prose-blockquote:rounded prose-blockquote:py-1 prose-blockquote:px-3 prose-blockquote:my-2 prose-hr:my-3">
                   <ReactMarkdown>{m.content}</ReactMarkdown>
                 </div>
               ) : (
