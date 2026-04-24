@@ -39,10 +39,9 @@ export default function AITeacher({ speaking, thinking, listening }: AITeacherPr
   }, []);
 
   return (
-    <div className="relative flex items-center justify-center w-full">
+    <div className="relative flex items-center justify-center w-full h-full">
       <div
-        className={`relative ${speaking ? "animate-[bob_0.6s_ease-in-out_infinite]" : "animate-[bob_3s_ease-in-out_infinite]"}`}
-        style={{ width: 180, height: 180 }}
+        className={`relative w-full h-full max-w-[180px] max-h-[180px] aspect-square ${speaking ? "animate-[bob_0.6s_ease-in-out_infinite]" : "animate-[bob_3s_ease-in-out_infinite]"}`}
       >
         {/* Listening glow ring */}
         {listening && (
