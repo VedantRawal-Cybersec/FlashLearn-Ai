@@ -192,9 +192,9 @@ export default function Tutor() {
   }
 
   return (
-    <div className="container max-w-3xl py-4 px-4 flex flex-col" style={{ height: "calc(100vh - 4rem - 5rem)" }}>
-      <div className="flex items-center justify-between mb-3">
-        <h1 className="text-2xl font-bold text-foreground">AI Tutor</h1>
+    <div className="container max-w-3xl py-3 px-3 sm:px-4 flex flex-col min-h-[calc(100dvh-4rem-5rem)] md:h-[calc(100dvh-4rem-5rem)]">
+      <div className="flex items-center justify-between mb-2 sm:mb-3">
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">AI Tutor</h1>
         <div className="flex gap-1">
           <Button
             type="button"
