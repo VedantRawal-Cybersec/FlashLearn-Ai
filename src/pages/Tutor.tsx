@@ -192,9 +192,9 @@ export default function Tutor() {
   }
 
   return (
-    <div className="container max-w-3xl py-4 px-4 flex flex-col" style={{ height: "calc(100vh - 4rem - 5rem)" }}>
-      <div className="flex items-center justify-between mb-3">
-        <h1 className="text-2xl font-bold text-foreground">AI Tutor</h1>
+    <div className="container max-w-3xl py-3 px-3 sm:px-4 flex flex-col min-h-[calc(100dvh-4rem-5rem)] md:h-[calc(100dvh-4rem-5rem)]">
+      <div className="flex items-center justify-between mb-2 sm:mb-3">
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">AI Tutor</h1>
         <div className="flex gap-1">
           <Button
             type="button"
@@ -218,10 +218,12 @@ export default function Tutor() {
         </div>
       </div>
 
-      {/* AI Teacher avatar panel */}
-      <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-accent/5 to-transparent border border-border p-4 mb-3 flex flex-col items-center">
-        <AITeacher speaking={speaking} thinking={loading} listening={listening} />
-        <p className="text-xs text-muted-foreground mt-2 text-center min-h-[1rem]">
+      {/* AI Teacher avatar panel — compact on mobile */}
+      <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-accent/5 to-transparent border border-border p-2 sm:p-4 mb-2 sm:mb-3 flex flex-row sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
+        <div className="w-20 h-20 sm:w-44 sm:h-44 shrink-0 flex items-center justify-center">
+          <AITeacher speaking={speaking} thinking={loading} listening={listening} />
+        </div>
+        <p className="text-xs text-muted-foreground sm:mt-2 text-left sm:text-center min-h-[1rem] flex-1 sm:flex-none">
           {listening
             ? "🎤 Listening..."
             : loading
@@ -232,7 +234,7 @@ export default function Tutor() {
         </p>
       </div>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-4 mb-3 pr-1">
+      <div ref={scrollRef} className="flex-1 min-h-[240px] overflow-y-auto space-y-4 mb-3 pr-1">
         {messages.length === 0 && !interimTranscript && (
           <div className="text-center py-8">
             <Bot className="h-8 w-8 text-primary mx-auto mb-2" />
