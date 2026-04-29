@@ -42,7 +42,7 @@ interface SourceRef {
   link: string;
 }
 
-type ChatMode = "live" | "voice" | "text" | "hybrid";
+type ChatMode = "voice" | "text" | "hybrid";
 type Level = "beginner" | "advanced";
 type AskMode = "normal" | "concise" | "detailed" | "simpler";
 
