@@ -267,3 +267,11 @@ When citing sources, refer to real external references (Wikipedia, official docs
     </div>
   );
 }
+
+export default function LiveConversation(props: Props) {
+  return (
+    <ConversationProvider>
+      <LiveConversationInner {...props} />
+    </ConversationProvider>
+  );
+}
