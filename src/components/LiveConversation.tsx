@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useConversation } from "@elevenlabs/react";
+import { useConversation, ConversationProvider } from "@elevenlabs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +22,7 @@ interface Props {
   level?: "beginner" | "advanced";
 }
 
-export default function LiveConversation({ videoTitle, context, level = "beginner" }: Props) {
+function LiveConversationInner({ videoTitle, context, level = "beginner" }: Props) {
   const [agentId, setAgentId] = useState<string>(() =>
     typeof window !== "undefined" ? localStorage.getItem(AGENT_ID_STORAGE_KEY) || "" : ""
   );
@@ -265,5 +265,13 @@ When citing sources, refer to real external references (Wikipedia, official docs
         Tip: you can interrupt the professor any time by speaking — it's a real conversation, not a recording.
       </p>
     </div>
+  );
+}
+
+export default function LiveConversation(props: Props) {
+  return (
+    <ConversationProvider>
+      <LiveConversationInner {...props} />
+    </ConversationProvider>
   );
 }
