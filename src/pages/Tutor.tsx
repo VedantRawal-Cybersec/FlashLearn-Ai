@@ -30,6 +30,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
 import AITeacher from "@/components/AITeacher";
+import LiveConversation from "@/components/LiveConversation";
 import { toast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -42,7 +43,7 @@ interface SourceRef {
   link: string;
 }
 
-type ChatMode = "voice" | "text" | "hybrid";
+type ChatMode = "live" | "voice" | "text" | "hybrid";
 type Level = "beginner" | "advanced";
 type AskMode = "normal" | "concise" | "detailed" | "simpler";
 
@@ -555,6 +556,9 @@ export default function Tutor() {
       <div className="flex flex-wrap items-center justify-between gap-2 mb-2 sm:mb-3">
         <Tabs value={chatMode} onValueChange={(v) => setChatMode(v as ChatMode)}>
           <TabsList className="h-8">
+            <TabsTrigger value="live" className="text-xs gap-1 px-2">
+              <Phone className="h-3.5 w-3.5" /> Live Talk
+            </TabsTrigger>
             <TabsTrigger value="voice" className="text-xs gap-1 px-2">
               <Headphones className="h-3.5 w-3.5" /> Voice
             </TabsTrigger>
