@@ -22,7 +22,7 @@ interface Props {
   level?: "beginner" | "advanced";
 }
 
-export default function LiveConversation({ videoTitle, context, level = "beginner" }: Props) {
+function LiveConversationInner({ videoTitle, context, level = "beginner" }: Props) {
   const [agentId, setAgentId] = useState<string>(() =>
     typeof window !== "undefined" ? localStorage.getItem(AGENT_ID_STORAGE_KEY) || "" : ""
   );
