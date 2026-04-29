@@ -30,7 +30,6 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
 import AITeacher from "@/components/AITeacher";
-import LiveConversation from "@/components/LiveConversation";
 import { toast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
