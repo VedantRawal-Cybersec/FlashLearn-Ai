@@ -555,9 +555,6 @@ export default function Tutor() {
       <div className="flex flex-wrap items-center justify-between gap-2 mb-2 sm:mb-3">
         <Tabs value={chatMode} onValueChange={(v) => setChatMode(v as ChatMode)}>
           <TabsList className="h-8">
-            <TabsTrigger value="live" className="text-xs gap-1 px-2">
-              <Phone className="h-3.5 w-3.5" /> Live Talk
-            </TabsTrigger>
             <TabsTrigger value="voice" className="text-xs gap-1 px-2">
               <Headphones className="h-3.5 w-3.5" /> Voice
             </TabsTrigger>
