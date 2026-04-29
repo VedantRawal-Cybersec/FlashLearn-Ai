@@ -172,6 +172,15 @@ serve(async (req) => {
                 platform: String(s.platform ?? "").slice(0, 120),
                 link: String(s.link ?? "").slice(0, 500),
               }))
+              // Only keep real external URLs; drop anything pointing at the uploaded material
+              .filter((s: any) => {
+                const link = (s.link || "").toLowerCase();
+                const platform = (s.platform || "").toLowerCase();
+                if (!link.startsWith("http://") && !link.startsWith("https://")) return false;
+                if (platform.includes("study material") || platform.includes("transcript")) return false;
+                if (link.includes("primary source")) return false;
+                return true;
+              })
               .slice(0, 6)
           : [];
       }
@@ -184,16 +193,15 @@ serve(async (req) => {
       spoken = reply
         .replace(/```[\s\S]*?```/g, "")
         .replace(/[#*_>`~]+/g, "")
-        .replace(/[📝🔑📖📌📚🧠🎯]/g, "")
+        .replace(/[📝🔑📖📌📚🧠🎯👋💬]/g, "")
         .replace(/\n+/g, " ")
         .replace(/\s+/g, " ")
         .trim()
         .slice(0, 600);
     }
 
-    if (sources.length === 0) {
-      sources = [{ title: videoTitle, platform: "Study material transcript", link: "Primary source — provided by user" }];
-    }
+    // Do NOT inject the uploaded study material as a source.
+    // If the model returned no verified external sources, return [].
 
     return new Response(JSON.stringify({ reply, spoken, keyPoints, snippets, sources }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
