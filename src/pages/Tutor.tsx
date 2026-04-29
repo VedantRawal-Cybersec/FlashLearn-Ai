@@ -581,13 +581,6 @@ export default function Tutor() {
         </div>
       </div>
 
-      {chatMode === "live" ? (
-        <LiveConversation
-          videoTitle={session?.title}
-          context={session?.flashcards?.map((c) => `Q: ${c.front} A: ${c.back}`).join("\n")}
-          level={level}
-        />
-      ) : (
       <>
       {/* AI Teacher avatar + Talk button */}
       <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-accent/5 to-transparent border border-border p-3 sm:p-4 mb-2 sm:mb-3 shrink-0">
