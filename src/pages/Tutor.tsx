@@ -865,7 +865,6 @@ export default function Tutor() {
         </form>
       )}
       </>
-      )}
     </div>
   );
 }
