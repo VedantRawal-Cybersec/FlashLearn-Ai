@@ -172,6 +172,11 @@ export default function Tutor() {
   }, []);
 
   const stopSpeaking = useCallback(() => {
+    try {
+      window.speechSynthesis?.cancel();
+    } catch {
+      /* ignore */
+    }
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -199,79 +204,141 @@ export default function Tutor() {
     requestAnimationFrame(tick);
   }, []);
 
+  // Pick the most natural-sounding human voice the browser offers.
+  // Priority: premium neural voices (Google, Microsoft Natural, Apple Siri/Premium) → en-US/en-GB female teacher-like.
+  const pickBestVoice = useCallback((): SpeechSynthesisVoice | null => {
+    const voices = window.speechSynthesis?.getVoices?.() || [];
+    if (!voices.length) return null;
+
+    const preferredNames = [
+      // Apple (macOS / iOS) — very natural
+      "Samantha", "Ava", "Allison", "Susan", "Karen", "Serena", "Moira", "Tessa",
+      "Siri Female (English (United States))", "Siri Female",
+      // Microsoft Natural / Neural (Edge)
+      "Microsoft Aria Online (Natural) - English (United States)",
+      "Microsoft Jenny Online (Natural) - English (United States)",
+      "Microsoft Emma Online (Natural) - English (United States)",
+      "Microsoft Libby Online (Natural) - English (United Kingdom)",
+      "Microsoft Sonia Online (Natural) - English (United Kingdom)",
+      // Google Chrome
+      "Google UK English Female", "Google US English",
+    ];
+
+    for (const name of preferredNames) {
+      const v = voices.find((x) => x.name === name);
+      if (v) return v;
+    }
+    // Fallback: any en-* voice that sounds female / natural
+    const enNatural = voices.find(
+      (v) => /en[-_]/i.test(v.lang) && /(natural|neural|aria|jenny|emma|libby|sonia|samantha|ava)/i.test(v.name)
+    );
+    if (enNatural) return enNatural;
+    const enFemale = voices.find((v) => /en[-_]/i.test(v.lang) && /female|woman|girl/i.test(v.name));
+    if (enFemale) return enFemale;
+    const anyEn = voices.find((v) => /en[-_]/i.test(v.lang));
+    return anyEn || voices[0];
+  }, []);
+
+  // Ensure voices are loaded (Chrome populates async)
+  useEffect(() => {
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+    const load = () => synth.getVoices();
+    load();
+    synth.addEventListener?.("voiceschanged", load);
+    return () => synth.removeEventListener?.("voiceschanged", load);
+  }, []);
+
+  // Split a long teacher response into natural sentence chunks so the browser
+  // doesn't truncate, and so prosody resets between sentences (sounds more human).
+  const splitIntoSentences = (text: string): string[] => {
+    const cleaned = text.replace(/\s+/g, " ").trim();
+    const parts = cleaned.match(/[^.!?]+[.!?]+["')\]]?|[^.!?]+$/g) || [cleaned];
+    // Merge tiny fragments into the previous sentence
+    const merged: string[] = [];
+    for (const p of parts) {
+      const s = p.trim();
+      if (!s) continue;
+      if (merged.length && s.length < 25) merged[merged.length - 1] += " " + s;
+      else merged.push(s);
+    }
+    return merged;
+  };
+
   const playSpeech = useCallback(
-    async (text: string, cacheKey?: string) => {
+    async (text: string) => {
       if (muted || !text) return;
       stopSpeaking();
-      try {
-        let audioUrl: string | null = null;
-        if (cacheKey && responseCacheRef.current.has(cacheKey)) {
-          audioUrl = responseCacheRef.current.get(cacheKey)!.audioUrl;
-        } else {
-          const { data, error } = await supabase.functions.invoke("elevenlabs-tts", {
-            body: { text },
-          });
-          if (error) throw error;
-          // supabase-js returns Blob for binary responses
-          const blob =
-            data instanceof Blob
-              ? data
-              : new Blob([data as ArrayBuffer], { type: "audio/mpeg" });
-          audioUrl = URL.createObjectURL(blob);
-          if (cacheKey) responseCacheRef.current.set(cacheKey, { audioUrl });
-        }
 
-        if (audioUrlRef.current && (!cacheKey || audioUrlRef.current !== audioUrl)) {
-          // don't revoke cached urls
-          if (!Array.from(responseCacheRef.current.values()).some((v) => v.audioUrl === audioUrlRef.current)) {
-            URL.revokeObjectURL(audioUrlRef.current);
-          }
-        }
-        audioUrlRef.current = audioUrl;
+      const synth = window.speechSynthesis;
+      if (!synth) {
+        setSpeaking(false);
+        return;
+      }
+      synth.cancel();
 
-        const audio = new Audio(audioUrl);
-        audioRef.current = audio;
-        audio.onplay = () => {
-          setSpeaking(true);
-          setSubtitle("");
-          startSubtitle(text, audio);
-        };
-        audio.onended = () => {
+      const voice = pickBestVoice();
+      const sentences = splitIntoSentences(text);
+      if (!sentences.length) return;
+
+      setSpeaking(true);
+      setSubtitle("");
+
+      // Progressive subtitle reveal driven by sentence boundaries + word boundaries
+      let spokenSoFar = "";
+      let currentIndex = 0;
+
+      const speakNext = () => {
+        if (!conversationActiveRef.current && currentIndex === 0) {
+          // continue regardless — user pressed send/replay
+        }
+        if (currentIndex >= sentences.length) {
           setSpeaking(false);
           setSubtitle("");
-          // Auto-resume listening in continuous voice conversation mode
           if (conversationActiveRef.current && chatMode !== "text") {
             setTimeout(() => startListening(true), 250);
           }
-        };
-        audio.onerror = () => {
-          setSpeaking(false);
-          setSubtitle("");
-        };
-        await audio.play();
-      } catch (e) {
-        console.error("TTS playback failed", e);
-        setSpeaking(false);
-        setSubtitle("");
-        // Fallback to browser TTS so the user is never stuck silent
-        try {
-          const utter = new SpeechSynthesisUtterance(text);
-          utter.rate = 1;
-          utter.onstart = () => setSpeaking(true);
-          utter.onend = () => {
-            setSpeaking(false);
-            if (conversationActiveRef.current && chatMode !== "text") {
-              setTimeout(() => startListening(true), 250);
-            }
-          };
-          window.speechSynthesis?.speak(utter);
-        } catch {
-          /* ignore */
+          return;
         }
-      }
+        const sentence = sentences[currentIndex++];
+        const u = new SpeechSynthesisUtterance(sentence);
+        if (voice) {
+          u.voice = voice;
+          u.lang = voice.lang;
+        } else {
+          u.lang = "en-US";
+        }
+        // Teacher-like delivery: calm, warm, slightly slower than default,
+        // with a natural mid-range pitch.
+        u.rate = 0.95;
+        u.pitch = 1.05;
+        u.volume = 1;
+
+        u.onstart = () => {
+          setSpeaking(true);
+        };
+        u.onboundary = (e: SpeechSynthesisEvent) => {
+          if (e.name && e.name !== "word") return;
+          const upto = sentence.slice(0, e.charIndex || 0);
+          setSubtitle((spokenSoFar + " " + upto).trim());
+        };
+        u.onend = () => {
+          spokenSoFar = (spokenSoFar + " " + sentence).trim();
+          setSubtitle(spokenSoFar);
+          // Tiny natural pause between sentences
+          setTimeout(speakNext, 120);
+        };
+        u.onerror = () => {
+          spokenSoFar = (spokenSoFar + " " + sentence).trim();
+          setTimeout(speakNext, 60);
+        };
+        synth.speak(u);
+      };
+
+      speakNext();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [muted, stopSpeaking, startSubtitle, chatMode]
+    [muted, stopSpeaking, pickBestVoice, chatMode]
   );
 
   const ensureMicStream = useCallback(async (): Promise<MediaStream | null> => {
