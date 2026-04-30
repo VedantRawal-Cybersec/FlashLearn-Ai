@@ -415,9 +415,10 @@ export default function Tutor() {
         lastReplyRef.current = assistantMsg;
         setMessages((prev) => [...prev, assistantMsg]);
 
-        // Speak the spoken version (concise) instead of the full markdown
-        if (chatMode !== "text" && spoken) {
-          playSpeech(spoken);
+        // Always speak the spoken version aloud (unless muted) — in every mode
+        const toSpeak = spoken || stripPlain(reply);
+        if (toSpeak) {
+          playSpeech(toSpeak);
         }
       } catch (err) {
         console.error("AI tutor error", err);
@@ -426,7 +427,7 @@ export default function Tutor() {
         const fb: Message = { role: "assistant", content: fallback, spoken: fallback };
         setMessages((prev) => [...prev, fb]);
         lastReplyRef.current = fb;
-        if (chatMode !== "text") playSpeech(fallback);
+        playSpeech(fallback);
         // Switch to text mode if backend keeps failing
         if (chatMode === "voice") {
           toast({
