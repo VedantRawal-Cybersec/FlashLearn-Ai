@@ -427,7 +427,7 @@ export default function Tutor() {
         const fb: Message = { role: "assistant", content: fallback, spoken: fallback };
         setMessages((prev) => [...prev, fb]);
         lastReplyRef.current = fb;
-        if (chatMode !== "text") playSpeech(fallback);
+        playSpeech(fallback);
         // Switch to text mode if backend keeps failing
         if (chatMode === "voice") {
           toast({
