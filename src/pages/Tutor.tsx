@@ -172,6 +172,11 @@ export default function Tutor() {
   }, []);
 
   const stopSpeaking = useCallback(() => {
+    try {
+      window.speechSynthesis?.cancel();
+    } catch {
+      /* ignore */
+    }
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
