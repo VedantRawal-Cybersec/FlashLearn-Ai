@@ -25,7 +25,19 @@ serve(async (req) => {
     if (!ELEVENLABS_API_KEY) throw new Error("ELEVENLABS_API_KEY not configured");
 
     // Cap to keep latency low
-    const safeText = text.slice(0, 2500);
+    const rawText = text.slice(0, 2500);
+
+    // Add subtle prosody hints so the voice sounds more human:
+    // - small pauses after sentence-ending punctuation
+    // - micro-pauses after commas / semicolons
+    // - keep ellipses (ElevenLabs treats "..." as a natural pause)
+    const humanized = rawText
+      .replace(/\s+/g, " ")
+      .replace(/([.!?])\s+/g, "$1  ")      // longer beat between sentences
+      .replace(/([,;:])\s+/g, "$1 ")        // light beat after commas
+      .replace(/\s+—\s+/g, " — ")           // em-dash breath
+      .trim();
+
     const voice = (typeof voiceId === "string" && voiceId.trim()) || DEFAULT_VOICE_ID;
 
     const response = await fetch(
@@ -37,14 +49,19 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          text: safeText,
-          model_id: "eleven_turbo_v2_5",
+          text: humanized,
+          // Multilingual v2 = highest quality, most natural prosody.
+          model_id: "eleven_multilingual_v2",
           voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.75,
-            style: 0.35,
+            // Lower stability = more expressive, varied intonation (less robotic)
+            stability: 0.35,
+            // High similarity keeps the voice's natural timbre intact
+            similarity_boost: 0.85,
+            // A touch of style for warmth and emotional inflection
+            style: 0.55,
             use_speaker_boost: true,
-            speed: 1.0,
+            // Slightly slower than default for a calm, professorial cadence
+            speed: 0.96,
           },
         }),
       }
