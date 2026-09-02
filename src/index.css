@@ -6,91 +6,96 @@
 
 @layer base {
   :root {
-    /* PIXEL QUEST — dark game world */
-    --background: 250 30% 7%;
-    --foreground: 40 40% 94%;
+    /* PIXEL QUEST — dark navy game world */
+    --background: 213 68% 7%;
+    --foreground: 41 100% 94%;
 
-    --card: 249 32% 11%;
-    --card-foreground: 40 40% 94%;
+    --card: 213 47% 9%;
+    --card-foreground: 41 100% 94%;
 
-    --popover: 249 32% 11%;
-    --popover-foreground: 40 40% 94%;
+    --popover: 213 47% 9%;
+    --popover-foreground: 41 100% 94%;
 
-    --primary: 41 92% 55%;
-    --primary-foreground: 250 40% 8%;
+    --primary: 44 100% 62%;
+    --primary-foreground: 213 68% 7%;
 
-    --secondary: 249 26% 16%;
-    --secondary-foreground: 40 30% 88%;
+    --secondary: 214 40% 14%;
+    --secondary-foreground: 41 60% 90%;
 
-    --muted: 249 20% 18%;
-    --muted-foreground: 245 12% 65%;
+    --muted: 214 30% 16%;
+    --muted-foreground: 214 16% 66%;
 
-    --accent: 217 72% 58%;
+    --accent: 220 66% 52%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 344 76% 61%;
+    --destructive: 342 83% 62%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 104 40% 46%;
+    --success: 107 42% 51%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 41 92% 55%;
-    --warning-foreground: 250 40% 8%;
+    --warning: 44 100% 62%;
+    --warning-foreground: 213 68% 7%;
 
-    --border: 250 22% 22%;
-    --input: 250 22% 20%;
-    --ring: 41 92% 55%;
+    --border: 214 32% 20%;
+    --input: 214 32% 18%;
+    --ring: 44 100% 62%;
 
     --radius: 0px;
 
     /* Pixel palette */
-    --cream: 43 55% 90%;
-    --cream-deep: 40 42% 82%;
-    --ink: 252 35% 12%;
-    --pixel-green: 104 45% 45%;
-    --pixel-pink: 344 76% 61%;
-    --pixel-blue: 219 65% 58%;
-    --pixel-purple: 268 45% 55%;
-    --pixel-gold: 41 92% 55%;
-    --sky: 210 70% 52%;
-    --grass: 104 40% 40%;
-    --dirt: 24 35% 30%;
+    --bg-deep: 213 65% 5%;
+    --panel-dark: 214 47% 9%;
+    --cream: 41 100% 91%;
+    --cream-deep: 37 78% 85%;
+    --ink: 0 0% 9%;
+    --pixel-green: 107 42% 51%;
+    --pixel-pink: 342 83% 62%;
+    --pixel-blue: 220 66% 52%;
+    --pixel-purple: 283 41% 50%;
+    --pixel-gold: 44 100% 62%;
+    --pixel-orange: 31 89% 58%;
+    --sky: 214 72% 45%;
+    --grass: 107 42% 42%;
+    --dirt: 24 45% 26%;
 
-    --sidebar-background: 250 30% 8%;
-    --sidebar-foreground: 40 30% 88%;
-    --sidebar-primary: 41 92% 55%;
-    --sidebar-primary-foreground: 250 40% 8%;
-    --sidebar-accent: 249 26% 16%;
-    --sidebar-accent-foreground: 41 92% 55%;
-    --sidebar-border: 250 22% 22%;
-    --sidebar-ring: 41 92% 55%;
+    --sidebar-background: 213 68% 7%;
+    --sidebar-foreground: 41 60% 90%;
+    --sidebar-primary: 44 100% 62%;
+    --sidebar-primary-foreground: 213 68% 7%;
+    --sidebar-accent: 214 40% 14%;
+    --sidebar-accent-foreground: 44 100% 62%;
+    --sidebar-border: 214 32% 20%;
+    --sidebar-ring: 44 100% 62%;
   }
+
 
   .dark {
-    --background: 250 30% 7%;
-    --foreground: 40 40% 94%;
-    --card: 249 32% 11%;
-    --card-foreground: 40 40% 94%;
-    --popover: 249 32% 11%;
-    --popover-foreground: 40 40% 94%;
-    --primary: 41 92% 55%;
-    --primary-foreground: 250 40% 8%;
-    --secondary: 249 26% 16%;
-    --secondary-foreground: 40 30% 88%;
-    --muted: 249 20% 18%;
-    --muted-foreground: 245 12% 65%;
-    --accent: 217 72% 58%;
+    --background: 213 68% 7%;
+    --foreground: 41 100% 94%;
+    --card: 213 47% 9%;
+    --card-foreground: 41 100% 94%;
+    --popover: 213 47% 9%;
+    --popover-foreground: 41 100% 94%;
+    --primary: 44 100% 62%;
+    --primary-foreground: 213 68% 7%;
+    --secondary: 214 40% 14%;
+    --secondary-foreground: 41 60% 90%;
+    --muted: 214 30% 16%;
+    --muted-foreground: 214 16% 66%;
+    --accent: 220 66% 52%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 344 76% 61%;
+    --destructive: 342 83% 62%;
     --destructive-foreground: 0 0% 100%;
-    --success: 104 40% 46%;
+    --success: 107 42% 51%;
     --success-foreground: 0 0% 100%;
-    --warning: 41 92% 55%;
-    --warning-foreground: 250 40% 8%;
-    --border: 250 22% 22%;
-    --input: 250 22% 20%;
-    --ring: 41 92% 55%;
+    --warning: 44 100% 62%;
+    --warning-foreground: 213 68% 7%;
+    --border: 214 32% 20%;
+    --input: 214 32% 18%;
+    --ring: 44 100% 62%;
   }
+
 }
 
 @layer base {
@@ -233,4 +238,44 @@
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1 !important; transform: none !important; }
   .float-slow, .float-mid, .float-fast, .twinkle { animation: none !important; }
+}
+
+@layer utilities {
+  .pixel-plaque {
+    background: hsl(var(--cream));
+    color: hsl(var(--ink));
+    border: 4px solid hsl(var(--ink));
+    box-shadow: 0 0 0 4px hsl(var(--cream-deep)), 6px 6px 0 0 hsl(213 65% 3% / .6);
+  }
+  .pixel-notch {
+    clip-path: polygon(
+      8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px),
+      calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px
+    );
+  }
+  .pixel-tag {
+    font-family: 'Press Start 2P', monospace;
+    border: 4px solid hsl(var(--ink));
+    box-shadow: 0 4px 0 0 hsl(213 65% 3% / .8);
+  }
+  .pipe-run path { stroke-dasharray: 2000; stroke-dashoffset: 2000; }
+  .pipe-run.is-visible path {
+    animation: pipe-draw 1400ms steps(28) forwards;
+  }
+  .pipe-run path:nth-child(3) { animation-delay: 200ms; }
+  .grid-floor {
+    background-image:
+      linear-gradient(hsl(220 66% 52% / .07) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(220 66% 52% / .07) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .scanlines {
+    background-image: repeating-linear-gradient(180deg, hsl(0 0% 100% / .025) 0 1px, transparent 1px 3px);
+  }
+}
+
+@keyframes pipe-draw { to { stroke-dashoffset: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pipe-run path { stroke-dashoffset: 0 !important; animation: none !important; }
 }
