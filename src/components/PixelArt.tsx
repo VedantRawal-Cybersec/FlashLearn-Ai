@@ -244,3 +244,220 @@ export const PixelPipe = ({
     <path d={d} stroke={color} strokeWidth="10" strokeLinecap="square" strokeDasharray="14 10" />
   </svg>
 );
+
+/* ============================================================
+   Extra sprites for the Pixel Quest landing page
+   ============================================================ */
+
+export const PixelKnight = ({ size = 72, className, style }: SpriteProps) => (
+  <svg {...base(size, 16, className, style)}>
+    <P x={5} y={1} w={6} h={1} c="#2f4f9e" />
+    <P x={4} y={2} w={8} h={3} c="#3a63c9" />
+    <P x={5} y={3} w={6} h={2} c="#f0c9a0" />
+    <P x={6} y={4} w={1} h={1} c="#12102a" />
+    <P x={9} y={4} w={1} h={1} c="#12102a" />
+    <P x={4} y={5} w={8} h={1} c="#2f4f9e" />
+    <P x={4} y={6} w={8} h={5} c="#4a7fe0" />
+    <P x={6} y={7} w={4} h={3} c="#cfe0ff" />
+    <P x={2} y={6} w={2} h={4} c="#3a63c9" />
+    <P x={12} y={6} w={2} h={4} c="#3a63c9" />
+    <P x={4} y={11} w={3} h={4} c="#2f4f9e" />
+    <P x={9} y={11} w={3} h={4} c="#2f4f9e" />
+    <P x={0} y={2} w={1} h={9} c="#c9d4e8" />
+    <P x={0} y={11} w={2} h={1} c="#8a5a12" />
+    <P x={14} y={5} w={2} h={6} c="#b8c3d9" />
+  </svg>
+);
+
+export const PixelMonster = ({ size = 72, className, style }: SpriteProps) => (
+  <svg {...base(size, 16, className, style)}>
+    <P x={3} y={1} w={2} h={2} c="#c23a63" />
+    <P x={11} y={1} w={2} h={2} c="#c23a63" />
+    <P x={4} y={3} w={8} h={3} c="#e8547c" />
+    <P x={3} y={4} w={10} h={6} c="#e8547c" />
+    <P x={5} y={5} w={2} h={2} c="#fff" />
+    <P x={9} y={5} w={2} h={2} c="#fff" />
+    <P x={6} y={6} w={1} h={1} c="#12102a" />
+    <P x={10} y={6} w={1} h={1} c="#12102a" />
+    <P x={5} y={8} w={6} h={1} c="#7d1f38" />
+    <P x={6} y={9} w={1} h={1} c="#fff" />
+    <P x={9} y={9} w={1} h={1} c="#fff" />
+    <P x={4} y={10} w={8} h={3} c="#c23a63" />
+    <P x={4} y={13} w={3} h={2} c="#7d1f38" />
+    <P x={9} y={13} w={3} h={2} c="#7d1f38" />
+    <P x={1} y={6} w={2} h={4} c="#c23a63" />
+    <P x={13} y={6} w={2} h={4} c="#c23a63" />
+  </svg>
+);
+
+export const PixelFlashcard = ({ size = 72, className, style }: SpriteProps) => (
+  <svg {...base(size, 16, className, style)}>
+    <P x={4} y={1} w={10} h={13} c="#26429b" />
+    <P x={3} y={2} w={10} h={13} c="#3a63c9" />
+    <P x={4} y={3} w={8} h={11} c="#4a7fe0" />
+    <P x={7} y={5} w={2} h={1} c="#f5b722" />
+    <P x={6} y={6} w={4} h={2} c="#f5b722" />
+    <P x={5} y={7} w={6} h={1} c="#ffe08a" />
+    <P x={6} y={8} w={4} h={1} c="#f5b722" />
+    <P x={6} y={9} w={1} h={2} c="#f5b722" />
+    <P x={9} y={9} w={1} h={2} c="#f5b722" />
+  </svg>
+);
+
+export const PixelQuill = ({ size = 72, className, style }: SpriteProps) => (
+  <svg {...base(size, 16, className, style)}>
+    <P x={2} y={2} w={10} h={12} c="#efe2c0" />
+    <P x={2} y={2} w={10} h={1} c="#c9b58c" />
+    <P x={2} y={13} w={10} h={1} c="#c9b58c" />
+    <P x={1} y={2} w={1} h={12} c="#8b7355" />
+    <P x={4} y={5} w={6} h={1} c="#8b7355" />
+    <P x={4} y={7} w={6} h={1} c="#8b7355" />
+    <P x={4} y={9} w={4} h={1} c="#8b7355" />
+    <P x={13} y={1} w={2} h={2} c="#e8ecf5" />
+    <P x={12} y={3} w={2} h={2} c="#c9d4e8" />
+    <P x={11} y={5} w={2} h={2} c="#e8ecf5" />
+    <P x={10} y={7} w={2} h={4} c="#b8c3d9" />
+    <P x={10} y={11} w={1} h={2} c="#8a5a12" />
+  </svg>
+);
+
+export const PixelAstronaut = ({ size = 80, className, style }: SpriteProps) => (
+  <svg {...base(size, 16, className, style)}>
+    <P x={4} y={2} w={8} h={6} c="#e8ecf5" />
+    <P x={5} y={3} w={6} h={4} c="#1b2440" />
+    <P x={6} y={4} w={2} h={1} c="#7fa8ff" />
+    <P x={4} y={8} w={8} h={5} c="#e8ecf5" />
+    <P x={6} y={9} w={4} h={2} c="#4a7fe0" />
+    <P x={2} y={8} w={2} h={4} c="#c9d4e8" />
+    <P x={12} y={8} w={2} h={4} c="#c9d4e8" />
+    <P x={4} y={13} w={3} h={2} c="#c9d4e8" />
+    <P x={9} y={13} w={3} h={2} c="#c9d4e8" />
+    <P x={11} y={3} w={2} h={2} c="#f39b35" />
+  </svg>
+);
+
+export const PixelHeroine = ({ size = 72, className, style }: SpriteProps) => (
+  <svg {...base(size, 16, className, style)}>
+    <P x={5} y={1} w={6} h={3} c="#a13a52" />
+    <P x={4} y={2} w={1} h={7} c="#a13a52" />
+    <P x={11} y={2} w={1} h={7} c="#a13a52" />
+    <P x={5} y={4} w={6} h={3} c="#f0c9a0" />
+    <P x={6} y={5} w={1} h={1} c="#12102a" />
+    <P x={9} y={5} w={1} h={1} c="#12102a" />
+    <P x={5} y={7} w={6} h={5} c="#f39b35" />
+    <P x={3} y={8} w={2} h={3} c="#f0c9a0" />
+    <P x={11} y={8} w={2} h={3} c="#f0c9a0" />
+    <P x={5} y={12} w={2} h={3} c="#6b4a2c" />
+    <P x={9} y={12} w={2} h={3} c="#6b4a2c" />
+  </svg>
+);
+
+export const PixelFlower = ({ size = 18, color = "#e8547c", className, style }: SpriteProps & { color?: string }) => (
+  <svg {...base(size, 8, className, style)}>
+    <P x={3} y={4} w={1} h={4} c="#3f7f32" />
+    <P x={1} y={5} w={2} h={1} c="#57a944" />
+    <P x={4} y={6} w={2} h={1} c="#57a944" />
+    <P x={2} y={1} w={3} h={3} c={color} />
+    <P x={1} y={2} w={5} h={1} c={color} />
+    <P x={3} y={0} w={1} h={1} c={color} />
+    <P x={3} y={2} w={1} h={1} c="#ffe08a" />
+  </svg>
+);
+
+export const PixelChip = ({ size = 40, className, style }: SpriteProps) => (
+  <svg {...base(size, 16, className, style)}>
+    <P x={4} y={4} w={8} h={8} c="#e8547c" />
+    <P x={6} y={6} w={4} h={4} c="#ff9ab5" />
+    <P x={7} y={1} w={1} h={3} c="#f5b722" />
+    <P x={10} y={1} w={1} h={3} c="#f5b722" />
+    <P x={7} y={12} w={1} h={3} c="#f5b722" />
+    <P x={10} y={12} w={1} h={3} c="#f5b722" />
+    <P x={1} y={7} w={3} h={1} c="#f5b722" />
+    <P x={1} y={10} w={3} h={1} c="#f5b722" />
+    <P x={12} y={7} w={3} h={1} c="#f5b722" />
+    <P x={12} y={10} w={3} h={1} c="#f5b722" />
+  </svg>
+);
+
+export const PixelHeartShield = ({ size = 40, className, style }: SpriteProps) => (
+  <svg {...base(size, 16, className, style)}>
+    <P x={3} y={1} w={10} h={9} c="#8c5ada" />
+    <P x={4} y={10} w={8} h={2} c="#7a4bc4" />
+    <P x={6} y={12} w={4} h={2} c="#6739ad" />
+    <P x={5} y={4} w={2} h={1} c="#e8547c" />
+    <P x={9} y={4} w={2} h={1} c="#e8547c" />
+    <P x={4} y={5} w={8} h={2} c="#e8547c" />
+    <P x={5} y={7} w={6} h={1} c="#e8547c" />
+    <P x={6} y={8} w={4} h={1} c="#e8547c" />
+    <P x={7} y={9} w={2} h={1} c="#e8547c" />
+  </svg>
+);
+
+export const PixelPhone = ({ size = 40, className, style }: SpriteProps) => (
+  <svg {...base(size, 16, className, style)}>
+    <P x={4} y={1} w={8} h={14} c="#c9d4e8" />
+    <P x={5} y={3} w={6} h={10} c="#1b2440" />
+    <P x={7} y={5} w={2} h={1} c="#f5b722" />
+    <P x={6} y={6} w={4} h={2} c="#f5b722" />
+    <P x={7} y={8} w={2} h={3} c="#f5b722" />
+    <P x={7} y={13} w={2} h={1} c="#8a93a8" />
+  </svg>
+);
+
+export const PixelLock = ({ size = 40, className, style }: SpriteProps) => (
+  <svg {...base(size, 16, className, style)}>
+    <P x={5} y={2} w={6} h={1} c="#c9d4e8" />
+    <P x={4} y={3} w={1} h={4} c="#c9d4e8" />
+    <P x={11} y={3} w={1} h={4} c="#c9d4e8" />
+    <P x={3} y={7} w={10} h={7} c="#f5b722" />
+    <P x={3} y={7} w={10} h={1} c="#ffe08a" />
+    <P x={7} y={9} w={2} h={2} c="#8a5a12" />
+    <P x={7} y={11} w={2} h={2} c="#8a5a12" />
+  </svg>
+);
+
+export const PixelSword = ({ size = 26, className, style }: SpriteProps) => (
+  <svg {...base(size, 16, className, style)}>
+    <P x={11} y={1} w={3} h={1} c="#e8ecf5" />
+    <P x={10} y={2} w={4} h={1} c="#e8ecf5" />
+    <P x={4} y={3} w={9} h={2} c="#c9d4e8" />
+    <P x={3} y={5} w={8} h={2} c="#b8c3d9" />
+    <P x={2} y={6} w={4} h={4} c="#f5b722" />
+    <P x={1} y={9} w={4} h={2} c="#8a5a12" />
+    <P x={0} y={11} w={3} h={2} c="#6b3a17" />
+  </svg>
+);
+
+/** Small tree used in the blue landscape CTA. */
+export const PixelTree = ({ size = 60, className, style }: SpriteProps) => (
+  <svg {...base(size, 16, className, style)}>
+    <P x={7} y={11} w={2} h={5} c="#6b3a17" />
+    <P x={7} y={1} w={2} h={2} c="#2f6b2a" />
+    <P x={6} y={3} w={4} h={2} c="#3f7f32" />
+    <P x={5} y={5} w={6} h={2} c="#2f6b2a" />
+    <P x={4} y={7} w={8} h={2} c="#3f7f32" />
+    <P x={3} y={9} w={10} h={2} c="#2f6b2a" />
+  </svg>
+);
+
+/** XP progress bar in retro chunky style. */
+export const XPBar = ({ value = 68, level = 12, className }: { value?: number; level?: number; className?: string }) => (
+  <div className={`flex items-center gap-2 border-4 border-[#171717] bg-[#1b2440] p-2 ${className ?? ""}`}>
+    <span className="pixel-text text-[0.6rem] text-[#f5b722]">XP</span>
+    <div className="flex-1 h-4 border-2 border-[#171717] bg-[#0b1220] overflow-hidden">
+      <div className="h-full bg-[#65b94d]" style={{ width: `${value}%`, boxShadow: "inset 0 3px 0 hsl(0 0% 100% / .25)" }} />
+    </div>
+    <span className="pixel-text text-[0.5rem] text-[#fff5df] whitespace-nowrap">LEVEL {level}</span>
+  </div>
+);
+
+/** Straight/elbow pixel pipe drawn as dashed segments; animates in on reveal. */
+export const PipeRun = ({
+  d, color = "#ef4f84", width = 12, className, viewBox = "0 0 400 200",
+}: { d: string; color?: string; width?: number; className?: string; viewBox?: string }) => (
+  <svg className={`pipe-run ${className ?? ""}`} viewBox={viewBox} fill="none" preserveAspectRatio="none" aria-hidden>
+    <path d={d} stroke="#171717" strokeWidth={width + 6} strokeLinecap="square" />
+    <path d={d} stroke={color} strokeWidth={width} strokeLinecap="square" />
+    <path d={d} stroke="hsl(0 0% 100% / .28)" strokeWidth={Math.max(2, width / 4)} strokeLinecap="square" strokeDasharray="10 14" />
+  </svg>
+);
