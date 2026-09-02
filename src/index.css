@@ -239,3 +239,43 @@
   .reveal { opacity: 1 !important; transform: none !important; }
   .float-slow, .float-mid, .float-fast, .twinkle { animation: none !important; }
 }
+
+@layer utilities {
+  .pixel-plaque {
+    background: hsl(var(--cream));
+    color: hsl(var(--ink));
+    border: 4px solid hsl(var(--ink));
+    box-shadow: 0 0 0 4px hsl(var(--cream-deep)), 6px 6px 0 0 hsl(213 65% 3% / .6);
+  }
+  .pixel-notch {
+    clip-path: polygon(
+      8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px),
+      calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px
+    );
+  }
+  .pixel-tag {
+    font-family: 'Press Start 2P', monospace;
+    border: 4px solid hsl(var(--ink));
+    box-shadow: 0 4px 0 0 hsl(213 65% 3% / .8);
+  }
+  .pipe-run path { stroke-dasharray: 2000; stroke-dashoffset: 2000; }
+  .pipe-run.is-visible path {
+    animation: pipe-draw 1400ms steps(28) forwards;
+  }
+  .pipe-run path:nth-child(3) { animation-delay: 200ms; }
+  .grid-floor {
+    background-image:
+      linear-gradient(hsl(220 66% 52% / .07) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(220 66% 52% / .07) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .scanlines {
+    background-image: repeating-linear-gradient(180deg, hsl(0 0% 100% / .025) 0 1px, transparent 1px 3px);
+  }
+}
+
+@keyframes pipe-draw { to { stroke-dashoffset: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pipe-run path { stroke-dashoffset: 0 !important; animation: none !important; }
+}
