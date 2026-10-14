@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap');
-
 @layer base {
   :root {
     /* PIXEL QUEST — dark navy game world */
@@ -58,6 +56,10 @@
     --sky: 214 72% 45%;
     --grass: 107 42% 42%;
     --dirt: 24 45% 26%;
+    --paper: 41 100% 97%;
+    --shadow-control: 0 3px 0 hsl(var(--ink) / .7);
+    --shadow-scene: 6px 6px 0 hsl(var(--bg-deep) / .6);
+    --scene-sky: linear-gradient(180deg, hsl(var(--sky)), hsl(var(--pixel-blue)));
 
     --sidebar-background: 213 68% 7%;
     --sidebar-foreground: 41 60% 90%;
@@ -110,7 +112,7 @@
 
   h1, h2, h3, .font-display {
     font-family: 'Press Start 2P', monospace;
-    letter-spacing: 0.02em;
+    letter-spacing: 0;
     line-height: 1.35;
   }
 
@@ -146,9 +148,9 @@
     border-radius: 0;
   }
   .pixel-panel-dark {
-    background: hsl(249 32% 11%);
+    background: hsl(var(--panel-dark));
     color: hsl(var(--foreground));
-    border: 4px solid hsl(250 22% 26%);
+    border: 2px solid hsl(var(--border));
     box-shadow: 6px 6px 0 0 hsl(250 40% 4% / 0.6);
     border-radius: 0;
   }
@@ -177,7 +179,7 @@
 
   .pixel-input {
     font-family: 'Pixelify Sans', monospace;
-    background: #fff;
+    background: hsl(var(--paper));
     color: hsl(var(--ink));
     border: 3px solid hsl(var(--ink));
     border-radius: 0 !important;
@@ -194,6 +196,20 @@
   .pixel-card {
     transition: transform 250ms steps(3), box-shadow 250ms steps(3);
   }
+  .pixel-panel, .pixel-plaque {
+    clip-path: polygon(8px 0, calc(100% - 8px) 0, calc(100% - 8px) 4px, 100% 4px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) 100%, 8px 100%, 8px calc(100% - 4px), 0 calc(100% - 4px), 0 8px, 4px 8px, 4px 0);
+  }
+  .quest-scene { background: var(--scene-sky); box-shadow: var(--shadow-scene); }
+  .world-nav { background: hsl(var(--background) / .85); transition: background-color 200ms; }
+  .world-nav.is-scrolled { background: hsl(var(--bg-deep)); border-color: hsl(var(--border)); }
+  .quest-world { isolation: isolate; }
+  .quest-world > .world-backdrop { z-index: 0; }
+  .quest-world > section, .quest-world > footer { position: relative; z-index: 1; }
+  .study-world { background-image: linear-gradient(hsl(var(--background) / .92), hsl(var(--background) / .92)); }
+  .study-world h1 { font-size: 1.125rem; line-height: 1.7; }
+  .study-world h2 { font-size: .875rem; line-height: 1.7; }
+  .study-world .bg-card { border-width: 3px; box-shadow: var(--shadow-control); }
+  .study-world [class*="tracking-"] { letter-spacing: 0; }
   @media (hover: hover) {
     .pixel-card:hover { transform: translate3d(0,-6px,0); }
   }
@@ -220,9 +236,9 @@
   .reveal-pop { transform: scale(.94) rotate(-2deg); }
   .reveal-pop.is-visible { transform: scale(1) rotate(0deg); }
 
-  .float-slow { animation: pixel-float 6s ease-in-out infinite; }
-  .float-mid { animation: pixel-float 4.6s ease-in-out infinite; }
-  .float-fast { animation: pixel-float 3.8s ease-in-out infinite; }
+  .float-slow { animation: pixel-float 6s steps(6) infinite; }
+  .float-mid { animation: pixel-float 4.6s steps(6) infinite; }
+  .float-fast { animation: pixel-float 3.8s steps(6) infinite; }
   .twinkle { animation: pixel-twinkle 3.2s steps(3) infinite; }
 }
 
@@ -236,6 +252,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
   .reveal { opacity: 1 !important; transform: none !important; }
   .float-slow, .float-mid, .float-fast, .twinkle { animation: none !important; }
 }
