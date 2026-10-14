@@ -14,9 +14,22 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["Pixelify Sans", "system-ui", "sans-serif"],
       },
       colors: {
+        cream: "hsl(var(--cream))",
+        "cream-deep": "hsl(var(--cream-deep))",
+        ink: "hsl(var(--ink))",
+        deep: "hsl(var(--bg-deep))",
+        paper: "hsl(var(--paper))",
+        "pixel-pink": "hsl(var(--pixel-pink))",
+        "pixel-blue": "hsl(var(--pixel-blue))",
+        "pixel-purple": "hsl(var(--pixel-purple))",
+        "pixel-gold": "hsl(var(--pixel-gold))",
+        "pixel-green": "hsl(var(--pixel-green))",
+        "pixel-orange": "hsl(var(--pixel-orange))",
+        sky: "hsl(var(--sky))",
+        grass: "hsl(var(--grass))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -73,6 +86,10 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        "pixel-control": "var(--shadow-control)",
+        scene: "var(--shadow-scene)",
       },
       keyframes: {
         "accordion-down": {
