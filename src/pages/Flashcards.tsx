@@ -48,9 +48,9 @@ export default function Flashcards() {
       </div>
 
       {/* Progress bar */}
-      <div className="h-1.5 bg-muted rounded-full mb-8 overflow-hidden">
+      <div className="h-4 border-2 border-ink bg-muted mb-8 overflow-hidden">
         <div
-          className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+          className="h-full bg-success transition-all duration-500 ease-out"
           style={{ width: `${((currentIndex + 1) / total) * 100}%` }}
         />
       </div>
@@ -59,29 +59,29 @@ export default function Flashcards() {
       <div
         key={animKey}
         className={cn(
-          "relative cursor-pointer rounded-2xl border bg-card p-8 min-h-[260px] flex items-center justify-center text-center",
+          "relative cursor-pointer pixel-panel p-8 min-h-[260px] flex items-center justify-center text-center",
           "hover-lift animate-card-flip-in",
           flipped && "border-primary/30"
         )}
         onClick={() => setFlipped(!flipped)}
       >
         <div className={flipped ? "animate-scale-in" : ""}>
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 block">
+          <span className="pixel-text text-[0.6rem] text-ink/60 uppercase mb-3 block">
             {flipped ? "Answer" : "Question"}
           </span>
-          <p className="text-lg font-medium text-foreground leading-relaxed">
+          <p className="text-xl font-medium text-ink leading-relaxed">
             {flipped ? card.back : card.front}
           </p>
         </div>
-        <button
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-transform duration-200 hover:rotate-[-30deg]"
+        <Button variant="ghost" size="icon" aria-label="Flip card" title="Flip card"
+          className="absolute top-4 right-4 text-ink hover:text-ink hover:bg-cream-deep"
           onClick={(e) => {
             e.stopPropagation();
             setFlipped(!flipped);
           }}
         >
           <RotateCcw className="h-4 w-4" />
-        </button>
+        </Button>
       </div>
 
       {/* Difficulty buttons */}

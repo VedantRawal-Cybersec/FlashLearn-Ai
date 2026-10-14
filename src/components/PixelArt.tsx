@@ -222,14 +222,16 @@ export const PixelBadge = ({ size = 64, className, style }: SpriteProps) => (
 /** Repeating pixel terrain strip (grass + dirt), used as a section edge. */
 export const PixelTerrain = ({ className }: { className?: string }) => (
   <div className={className} aria-hidden>
-    <svg width="100%" height="48" viewBox="0 0 64 12" preserveAspectRatio="none" shapeRendering="crispEdges">
-      <rect x="0" y="0" width="64" height="3" fill="#68c052" />
-      <rect x="0" y="3" width="64" height="2" fill="#3f7f32" />
-      <rect x="0" y="5" width="64" height="7" fill="#7a4a24" />
-      <rect x="4" y="6" width="2" height="2" fill="#8f5a2c" />
-      <rect x="18" y="8" width="3" height="2" fill="#8f5a2c" />
-      <rect x="34" y="6" width="2" height="2" fill="#8f5a2c" />
-      <rect x="50" y="9" width="3" height="2" fill="#8f5a2c" />
+    <svg width="100%" height="40" shapeRendering="crispEdges">
+      <defs>
+        <pattern id="quest-ground" width="128" height="40" patternUnits="userSpaceOnUse">
+          <path d="M0 12H12V4H24V0H36V8H48V12H72V8H88V4H104V12H128V20H0Z" fill="hsl(var(--grass))" />
+          <path d="M0 20H128V28H112V36H96V28H72V40H48V32H24V28H8V36H0Z" fill="hsl(var(--dirt))" />
+          <path d="M8 20H24V24H8ZM48 24H64V28H48ZM96 20H112V24H96Z" fill="hsl(var(--pixel-orange) / .3)" />
+          <path d="M24 8H32V12H24ZM80 8H88V12H80Z" fill="hsl(var(--pixel-green))" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="40" fill="url(#quest-ground)" />
     </svg>
   </div>
 );

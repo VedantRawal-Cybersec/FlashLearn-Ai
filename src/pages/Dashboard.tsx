@@ -1,6 +1,7 @@
 import { useAppStore } from "@/lib/store";
 import { Layers, HelpCircle, Map, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
   const session = useAppStore((s) => s.currentSession);
@@ -48,23 +49,23 @@ export default function Dashboard() {
 
   return (
     <div className="container max-w-3xl py-10 px-4">
-      <h1 className="text-2xl font-bold text-foreground mb-2">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-2">Quest Progress</h1>
       <p className="text-muted-foreground mb-8 truncate">{session.title}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {stats.map((s) => (
-          <button
+          <Button variant="ghost" size="natural"
             key={s.label}
             onClick={() => navigate(s.path)}
-            className="rounded-xl border bg-card p-5 text-left hover:border-primary transition-colors"
+            className="pixel-panel pixel-card block p-5 text-left whitespace-normal hover:bg-cream-deep"
           >
             <div className="flex items-center gap-2 mb-3">
-              <s.icon className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">{s.label}</span>
+              <s.icon className="h-5 w-5 text-pixel-blue" />
+              <span className="text-sm font-medium text-ink/70">{s.label}</span>
             </div>
-            <p className="text-3xl font-bold text-foreground">{s.value}</p>
-            <p className="text-sm text-muted-foreground mt-1">{s.sub}</p>
-          </button>
+            <p className="text-3xl font-bold text-ink">{s.value}</p>
+            <p className="text-sm text-ink/70 mt-1">{s.sub}</p>
+          </Button>
         ))}
       </div>
 
