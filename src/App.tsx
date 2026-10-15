@@ -16,6 +16,8 @@ import ExamPredictor from "@/pages/ExamPredictor";
 import WeaknessAnalyzer from "@/pages/WeaknessAnalyzer";
 import ConceptMap from "@/pages/ConceptMap";
 import NotFound from "@/pages/NotFound";
+import Avatar from "@/pages/Avatar";
+import Battle from "@/pages/Battle";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,8 @@ const App = () => (
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/avatar" element={<Avatar />} />
+            <Route path="/battle" element={<Battle />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/flashcards" element={<Flashcards />} />
             <Route path="/quiz" element={<Quiz />} />
