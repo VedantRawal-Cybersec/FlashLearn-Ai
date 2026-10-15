@@ -1,14 +1,18 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, BookOpen, Sun, Moon, Zap, AlertTriangle, Target, TrendingDown, Network, Menu, X } from "lucide-react";
+import { LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, BookOpen, Sun, Moon, Zap, AlertTriangle, Target, TrendingDown, Network, Menu, X, Swords, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
 import { useAppStore } from "@/lib/store";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PixelBolt } from "@/components/PixelArt";
+import PlayerAvatar from "@/components/PlayerAvatar";
+import { usePlayer } from "@/lib/player";
 
 const navItems = [
   { path: "/", label: "Home", icon: Zap },
+  { path: "/battle", label: "1v1 Arena", icon: Swords },
+  { path: "/avatar", label: "My Hero", icon: UserRound },
   { path: "/dashboard", label: "Progress", icon: LayoutDashboard },
   { path: "/flashcards", label: "Flashcards", icon: Layers },
   { path: "/quiz", label: "Quiz Battle", icon: HelpCircle },
@@ -23,6 +27,7 @@ const navItems = [
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const avatar = usePlayer((s) => s.avatar);
   const { theme, toggleTheme } = useTheme();
   const session = useAppStore((s) => s.currentSession);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -44,7 +49,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => setMobileMenuOpen(false), [location.pathname]);
 
   const renderLink = (item: typeof navItems[number]) => {
-    const disabled = item.path !== "/" && !session;
+    const disabled = !["/", "/avatar", "/battle"].includes(item.path) && !session;
     const active = location.pathname === item.path;
     const Icon = item.icon;
     return (
@@ -68,9 +73,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <span className="pixel-text text-[0.7rem] leading-[1.5] text-foreground">FLASH<br /><span className="text-primary">LEARN</span></span>
           </Link>
           <nav aria-label="Main navigation" className="hidden xl:flex items-center gap-1">
-            {navItems.filter((item) => ["/", "/flashcards", "/quiz", "/notes", "/dashboard", "/tutor"].includes(item.path)).map(renderLink)}
+            {navItems.filter((item) => ["/", "/flashcards", "/quiz", "/battle", "/tutor"].includes(item.path)).map(renderLink)}
           </nav>
           <div className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="icon" title="Customize your hero"><Link to="/avatar" aria-label="Customize your hero"><PlayerAvatar avatar={avatar} size={34} /></Link></Button>
             <Button variant="ghost" size="icon" onClick={toggleTheme} title="Toggle theme" aria-label="Toggle theme">
               {theme === "light" ? <Moon /> : <Sun />}
             </Button>
@@ -88,7 +94,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </nav>
         )}
       </header>
-      <main className={cn("flex-1", location.pathname !== "/" && "study-world")}>{children}</main>
+      <main key={location.pathname} className={cn("flex-1 quest-page-enter", location.pathname !== "/" && "study-world")}>{children}</main>
     </div>
   );
 }

@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useReveal, useParallax, useMouseParallax } from "@/hooks/use-reveal";
+import PlayerAvatar from "@/components/PlayerAvatar";
+import { usePlayer } from "@/lib/player";
 import {
   PixelStar, PixelCoin, PixelBolt, PixelCloud, PixelPlanet, PixelChest, PixelSlime,
   PixelWizard, PixelScroll, PixelController, PixelBadge, PixelTerrain,
@@ -25,6 +27,7 @@ const SHOWCASE_STATS = [
 const QUESTION_PRESETS = [5, 10, 20, 30, 50];
 
 export default function Home() {
+  const avatar = usePlayer((s) => s.avatar);
   const [url, setUrl] = useState("");
   const [tab, setTab] = useState<"youtube" | "file">("youtube");
   const [questionCount, setQuestionCount] = useState(20);
@@ -45,7 +48,7 @@ export default function Home() {
     if (!sessionsLoaded) loadSessions();
   }, [sessionsLoaded, loadSessions]);
 
-  const px = (depth: number) => `translate3d(${(m.x * depth).toFixed(2)}px, ${(m.y * depth).toFixed(2)}px, 0)`;
+  const px = (depth: number) => `translate3d(${(m.x * depth * 2).toFixed(2)}px, ${(m.y * depth * 1.6).toFixed(2)}px, 0)`;
 
   const handleYouTubeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -250,6 +253,10 @@ export default function Home() {
               </p>
 
               {/* characters standing on the terrain */}
+              <div className="flex flex-wrap gap-3 mt-5">
+                <Button variant="outline" onClick={() => navigate("/battle")}><PixelSword size={20} />1v1 AI Arena</Button>
+                <Button variant="ghost" onClick={() => navigate("/avatar")}><PlayerAvatar avatar={avatar} size={28} />My Hero</Button>
+              </div>
               <div className="relative h-[112px] mt-4 hidden md:block" aria-hidden>
                 <PixelWizard size={104} className="absolute left-0 bottom-0 float-slow" style={{ transform: px(8) }} />
                 <PixelSlime size={54} className="absolute left-[140px] bottom-0 float-mid" style={{ transform: px(6) }} />

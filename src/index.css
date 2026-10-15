@@ -60,6 +60,9 @@
     --shadow-control: 0 3px 0 hsl(var(--ink) / .7);
     --shadow-scene: 6px 6px 0 hsl(var(--bg-deep) / .6);
     --scene-sky: linear-gradient(180deg, hsl(var(--sky)), hsl(var(--pixel-blue)));
+    --arena-sky: linear-gradient(180deg, hsl(var(--bg-deep)), hsl(var(--pixel-blue) / .28));
+    --arena-mountain: hsl(var(--pixel-purple) / .25);
+    --arena-grid: hsl(var(--pixel-green) / .25);
 
     --sidebar-background: 213 68% 7%;
     --sidebar-foreground: 41 60% 90%;
@@ -292,6 +295,35 @@
 }
 
 @keyframes pipe-draw { to { stroke-dashoffset: 0; } }
+
+.quest-page-enter { animation: quest-enter 450ms ease-out both; }
+.avatar-stage, .battle-stage { background: var(--arena-sky); border-block: 2px solid hsl(var(--border)); }
+.avatar-stage { background-image: var(--arena-sky); }
+.battle-mountains { background: var(--arena-mountain); clip-path: polygon(0 100%, 0 76%, 15% 33%, 27% 65%, 40% 20%, 53% 61%, 72% 29%, 90% 68%, 100% 42%, 100% 100%); }
+.battle-floor { background-color: hsl(var(--bg-deep)); background-image: linear-gradient(var(--arena-grid) 1px, transparent 1px), linear-gradient(90deg, var(--arena-grid) 1px, transparent 1px); background-size: 28px 14px; transform: perspective(180px) rotateX(25deg) scale(1.2); animation: arena-floor 5s linear infinite; border-top: 3px solid hsl(var(--pixel-green)); }
+.avatar-idle .avatar-body { animation: hero-idle 2.4s steps(4) infinite; }
+.rival-avatar .avatar-body { animation-delay: -1.2s; }
+.duel-vs { animation: vs-pulse 3s steps(5) infinite; }
+.battle-attack { animation: hero-attack 450ms steps(5); }
+.victory-trophy { animation: pixel-float 2s steps(6) infinite; }
+.battle-timer { appearance: none; border: 0; background: hsl(var(--muted)); }
+.battle-timer::-webkit-progress-bar { background: hsl(var(--muted)); }
+.battle-timer::-webkit-progress-value { background: hsl(var(--primary)); transition: width 1s linear; }
+.battle-timer::-moz-progress-bar { background: hsl(var(--primary)); }
+.quest-world .float-slow { animation-duration: 4.8s; }
+.quest-world .float-mid { animation-duration: 3.4s; }
+.quest-world .float-fast { animation-duration: 2.6s; }
+.quest-world .pixel-card:hover svg { animation: sprite-hop 650ms steps(6); }
+.quest-world .pixel-tag { animation: quest-enter 650ms steps(8) both; }
+.quest-world .starfield { animation: star-drift 35s linear infinite; }
+@keyframes quest-enter { from { opacity: 0; translate: 0 12px; } to { opacity: 1; translate: 0 0; } }
+@keyframes hero-idle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
+@keyframes hero-attack { 0%,100% { transform: translateX(0); } 50% { transform: translateX(25px) rotate(5deg); } }
+@keyframes vs-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@keyframes arena-floor { to { background-position: 0 28px; } }
+@keyframes sprite-hop { 0%,100% { translate: 0 0; } 40% { translate: 0 -10px; rotate: -4deg; } 70% { rotate: 4deg; } }
+@keyframes star-drift { to { background-position: 420px 210px; } }
+@media (max-width: 480px) { .arena-avatar { width: 100px; height: 115px; } }
 
 @media (prefers-reduced-motion: reduce) {
   .pipe-run path { stroke-dashoffset: 0 !important; animation: none !important; }
