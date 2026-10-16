@@ -34,7 +34,7 @@ export function useParallax(ref: React.RefObject<HTMLElement>) {
     if (!root) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const layers = Array.from(root.querySelectorAll<HTMLElement>("[data-py]"));
+    const layers = Array.from(root.querySelectorAll<HTMLElement>("[data-py],[data-px]"));
     if (!layers.length) return;
 
     let raf = 0;
@@ -42,8 +42,9 @@ export function useParallax(ref: React.RefObject<HTMLElement>) {
       raf = 0;
       const y = window.scrollY;
       for (const el of layers) {
-        const f = parseFloat(el.dataset.py || "0");
-        el.style.transform = `translate3d(0, ${(y * f).toFixed(1)}px, 0)`;
+        const fy = parseFloat(el.dataset.py || "0");
+        const fx = parseFloat(el.dataset.px || "0");
+        el.style.transform = `translate3d(${(y * fx).toFixed(1)}px, ${(y * fy).toFixed(1)}px, 0)`;
       }
     };
     const onScroll = () => {
