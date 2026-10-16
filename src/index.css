@@ -315,7 +315,29 @@
 .quest-world .float-fast { animation-duration: 2.6s; }
 .quest-world .pixel-card:hover svg { animation: sprite-hop 650ms steps(6); }
 .quest-world .pixel-tag { animation: quest-enter 650ms steps(8) both; }
-.quest-world .starfield { animation: star-drift 35s linear infinite; }
+.quest-world .starfield { animation: star-drift 40s steps(40) infinite; }
+[data-py], [data-px], [data-mx] { will-change: transform; }
+.battle-floor { animation: arena-floor 5s steps(12) infinite; }
+
+/* GPU-friendly extras */
+.pixel-btn { position: relative; overflow: hidden; }
+.pixel-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, hsl(0 0% 100% / .35) 50%, transparent 60%);
+  transform: translate3d(-120%, 0, 0);
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .pixel-btn:hover:not(:disabled)::after { transition: transform 500ms steps(10); transform: translate3d(120%, 0, 0); }
+}
+.glow-pulse { animation: glow-pulse 2.4s steps(6) infinite; }
+@keyframes glow-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.25); }
+}
+.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 480px; }
 @keyframes quest-enter { from { opacity: 0; translate: 0 12px; } to { opacity: 1; translate: 0 0; } }
 @keyframes hero-idle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
 @keyframes hero-attack { 0%,100% { transform: translateX(0); } 50% { transform: translateX(25px) rotate(5deg); } }
