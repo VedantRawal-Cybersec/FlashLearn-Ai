@@ -21,7 +21,7 @@ export default function Battle() {
   const [phase, setPhase] = useState<"setup" | "playing" | "reveal" | "results">("setup");
   const [seconds, setSeconds] = useState(20);
   const stage = useRef<HTMLDivElement>(null);
-  const motion = useMouseParallax(stage);
+  useMouseParallax(stage);
   const locked = useRef(false);
   const completed = useRef(false);
   useEffect(() => { if (!sessionsLoaded) void loadSessions(); }, [sessionsLoaded, loadSessions]);
@@ -57,7 +57,7 @@ export default function Battle() {
   return <div className="container max-w-5xl px-5 py-8 animate-fade-in">
     <div className="flex justify-between items-center gap-4 mb-6"><div><p className="pixel-text text-primary text-[0.6rem] mb-3">1V1 · VS AI</p><h1>Quiz arena</h1></div><Button asChild variant="outline" size="icon" title="Customize hero"><Link to="/avatar" aria-label="Customize hero"><PlayerAvatar avatar={avatar} size={32} /></Link></Button></div>
     <div ref={stage} className="battle-stage relative overflow-hidden mb-8 min-h-[265px] flex items-center justify-center">
-      <div className="battle-mountains absolute inset-0" aria-hidden style={{ transform: `translate3d(${motion.x * 14}px, ${motion.y * 6}px, 0)` }} />
+      <div className="battle-mountains absolute inset-0" aria-hidden data-mx="7" />
       <div className="starfield absolute inset-0 opacity-60" aria-hidden />
       <div className="battle-floor absolute inset-x-0 bottom-0 h-14" aria-hidden />
       <div className="relative grid grid-cols-[1fr_auto_1fr] items-center w-full max-w-2xl px-4 gap-3">
