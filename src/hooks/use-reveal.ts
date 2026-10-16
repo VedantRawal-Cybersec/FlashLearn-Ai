@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 /** Adds `.is-visible` to every `.reveal` element when it scrolls into view. */
 export function useReveal(deps: unknown[] = []) {
@@ -23,56 +23,87 @@ export function useReveal(deps: unknown[] = []) {
   }, deps);
 }
 
-/** Scroll offset in px, throttled with rAF — for parallax layers. */
-export function useParallax(onScroll: (y: number) => void) {
+/**
+ * Scroll parallax without React re-renders.
+ * Elements inside `ref` carrying `data-py="<factor>"` get
+ * `transform: translate3d(0, scrollY * factor, 0)` written directly to the DOM.
+ */
+export function useParallax(ref: React.RefObject<HTMLElement>) {
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      onScroll(0);
-      return;
-    }
+    const root = ref.current;
+    if (!root) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const layers = Array.from(root.querySelectorAll<HTMLElement>("[data-py]"));
+    if (!layers.length) return;
+
     let raf = 0;
-    const handle = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => onScroll(window.scrollY));
+    const apply = () => {
+      raf = 0;
+      const y = window.scrollY;
+      for (const el of layers) {
+        const f = parseFloat(el.dataset.py || "0");
+        el.style.transform = `translate3d(0, ${(y * f).toFixed(1)}px, 0)`;
+      }
     };
-    handle();
-    window.addEventListener("scroll", handle, { passive: true });
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(apply);
+    };
+    apply();
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", handle);
+      window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
 
-/** Pointer offset (-1..1) inside the given element. Desktop only (>= 900px). */
+/**
+ * Pointer parallax without React re-renders.
+ * Elements inside `ref` carrying `data-mx="<depth>"` are translated
+ * toward the pointer. Desktop only (>= 900px, fine pointer).
+ */
 export function useMouseParallax(ref: React.RefObject<HTMLElement>) {
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     if (window.innerWidth < 900 || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    const layers = Array.from(el.querySelectorAll<HTMLElement>("[data-mx]"));
+    if (!layers.length) return;
+
     let raf = 0;
     const target = { x: 0, y: 0 };
     const current = { x: 0, y: 0 };
 
+    const paint = () => {
+      for (const layer of layers) {
+        const d = parseFloat(layer.dataset.mx || "0");
+        layer.style.transform = `translate3d(${(current.x * d * 2).toFixed(2)}px, ${(current.y * d * 1.6).toFixed(2)}px, 0)`;
+      }
+    };
+    const loop = () => {
+      raf = 0;
+      current.x += (target.x - current.x) * 0.08;
+      current.y += (target.y - current.y) * 0.08;
+      paint();
+      if (Math.abs(target.x - current.x) + Math.abs(target.y - current.y) > 0.002) {
+        raf = requestAnimationFrame(loop);
+      }
+    };
     const onMove = (e: MouseEvent) => {
       const r = el.getBoundingClientRect();
       target.x = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2));
       target.y = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height - 0.5) * 2));
       if (!raf) raf = requestAnimationFrame(loop);
     };
-    const loop = () => {
-      raf = 0;
-      current.x += (target.x - current.x) * 0.08;
-      current.y += (target.y - current.y) * 0.08;
-      setPos({ x: current.x, y: current.y });
-      if (Math.abs(target.x - current.x) + Math.abs(target.y - current.y) > .002) raf = requestAnimationFrame(loop);
+    const reset = () => {
+      target.x = 0;
+      target.y = 0;
+      if (!raf) raf = requestAnimationFrame(loop);
     };
-    const reset = () => { target.x = 0; target.y = 0; if (!raf) raf = requestAnimationFrame(loop); };
     el.addEventListener("mousemove", onMove, { passive: true });
     el.addEventListener("mouseleave", reset);
     return () => {
@@ -82,6 +113,4 @@ export function useMouseParallax(ref: React.RefObject<HTMLElement>) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  return pos;
 }
