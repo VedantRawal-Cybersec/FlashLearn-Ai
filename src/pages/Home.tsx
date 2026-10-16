@@ -33,22 +33,20 @@ export default function Home() {
   const [questionCount, setQuestionCount] = useState(20);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const worldRef = useRef<HTMLDivElement>(null);
   const { isLoading, setLoading, addSession, sessions, sessionsLoaded, loadSessions, selectSession, deleteSession } = useAppStore();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useParallax(setScrollY);
+  useParallax(worldRef);
   useReveal([sessions.length, tab]);
-  const m = useMouseParallax(heroRef);
+  useMouseParallax(heroRef);
 
   useEffect(() => {
     if (!sessionsLoaded) loadSessions();
   }, [sessionsLoaded, loadSessions]);
-
-  const px = (depth: number) => `translate3d(${(m.x * depth * 2).toFixed(2)}px, ${(m.y * depth * 1.6).toFixed(2)}px, 0)`;
 
   const handleYouTubeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,12 +198,12 @@ export default function Home() {
   ];
 
   return (
-    <div className="quest-world relative overflow-hidden bg-background">
+    <div ref={worldRef} className="quest-world relative overflow-hidden bg-background">
       {/* ---------- LAYER 0/1 : deep field + stars ---------- */}
       <div className="world-backdrop pointer-events-none absolute inset-0" aria-hidden>
-        <div className="absolute inset-0 bg-deep" style={{ transform: `translate3d(0, ${scrollY * -0.02}px, 0)` }} />
-        <div className="absolute inset-0 starfield opacity-80" style={{ transform: `translate3d(0, ${scrollY * -0.05}px, 0)` }} />
-        <div className="absolute inset-0 starfield opacity-40" style={{ transform: `translate3d(0, ${scrollY * -0.1}px, 0) scale(1.7)` }} />
+        <div className="absolute inset-0 bg-deep" data-py="-0.02" />
+        <div className="absolute inset-0 starfield opacity-80" data-py="-0.05" />
+        <div className="absolute inset-0 starfield opacity-40" data-py="-0.1" style={{ scale: "1.7" }} />
         {[
           { l: "8%", t: "6%", c: "hsl(var(--pixel-gold))", s: 12, d: "0s" },
           { l: "22%", t: "14%", c: "hsl(var(--pixel-pink))", s: 9, d: ".5s" },
@@ -258,8 +256,8 @@ export default function Home() {
                 <Button variant="ghost" onClick={() => navigate("/avatar")}><PlayerAvatar avatar={avatar} size={28} />My Hero</Button>
               </div>
               <div className="relative h-[112px] mt-4 hidden md:block" aria-hidden>
-                <PixelWizard size={104} className="absolute left-0 bottom-0 float-slow" style={{ transform: px(8) }} />
-                <PixelSlime size={54} className="absolute left-[140px] bottom-0 float-mid" style={{ transform: px(6) }} />
+                <PixelWizard size={104} className="absolute left-0 bottom-0 float-slow" data-mx="8" />
+                <PixelSlime size={54} className="absolute left-[140px] bottom-0 float-mid" data-mx="6" />
                 <PixelFlower size={20} className="absolute left-[210px] bottom-1" color="hsl(var(--pixel-pink))" />
                 <PixelFlower size={18} className="absolute left-[240px] bottom-0" color="hsl(var(--pixel-gold))" />
               </div>
@@ -267,14 +265,14 @@ export default function Home() {
 
             {/* ---- RIGHT : QUEST CARD ---- */}
             <div className="relative pb-4 md:pb-8">
-              <PixelCloud size={130} className="absolute -top-6 right-2 opacity-90 hidden md:block" style={{ transform: px(10) }} />
-              <PixelPlanet size={70} className="absolute -left-16 -top-8 float-slow hidden xl:block" style={{ transform: px(6) }} />
-              <PixelCoin size={30} className="absolute -right-6 top-28 float-fast hidden md:block" style={{ transform: px(12) }} />
+              <PixelCloud size={130} className="absolute -top-6 right-2 opacity-90 hidden md:block" data-mx="10" />
+              <PixelPlanet size={70} className="absolute -left-16 -top-8 float-slow hidden xl:block" data-mx="6" />
+              <PixelCoin size={30} className="absolute -right-6 top-28 float-fast hidden md:block" data-mx="12" />
 
               <div className="relative z-10 max-w-[500px] mx-auto">
                 {/* pink tag above card */}
                 <div className="flex justify-center -mb-3 relative z-20">
-                  <div className="pixel-tag bg-pixel-pink text-accent-foreground text-[0.6rem] px-5 py-2.5">START YOUR QUEST</div>
+                  <div className="pixel-tag glow-pulse bg-pixel-pink text-accent-foreground text-[0.6rem] px-5 py-2.5">START YOUR QUEST</div>
                 </div>
 
                 <div className="reveal is-visible pixel-panel p-4 sm:p-6 pt-7">
@@ -377,7 +375,7 @@ export default function Home() {
                   )}
                 </div>
 
-                <PixelChest size={82} className="absolute -bottom-4 -right-2 float-mid hidden md:block" style={{ transform: px(12) }} />
+                <PixelChest size={82} className="absolute -bottom-4 -right-2 float-mid hidden md:block" data-mx="12" />
               </div>
             </div>
           </div>
@@ -387,7 +385,7 @@ export default function Home() {
       </section>
 
       {/* ============ STATS ============ */}
-      <section className="relative py-6 md:py-8">
+      <section className="cv-auto relative py-6 md:py-8">
         <PipeRun d="M10 20 L10 130 L120 130 L120 190" color="hsl(var(--pixel-purple))" className="reveal absolute left-0 top-0 w-[18%] h-[240px] hidden lg:block opacity-90" />
         <PipeRun d="M390 20 L390 120 L280 120 L280 200" color="hsl(var(--pixel-blue))" className="reveal absolute right-0 top-0 w-[18%] h-[240px] hidden lg:block opacity-90" />
 
@@ -415,7 +413,7 @@ export default function Home() {
       </section>
 
       {/* ============ CHOOSE YOUR QUEST ============ */}
-      <section className="relative py-5 md:py-8">
+      <section className="cv-auto relative py-5 md:py-8">
         <PipeRun d="M0 40 L120 40 L120 160 L20 160" color="hsl(var(--pixel-pink))" className="reveal absolute left-0 top-24 w-[16%] h-[280px] hidden lg:block opacity-80" />
         <PipeRun d="M400 40 L300 40 L300 170 L390 170" color="hsl(var(--pixel-green))" className="reveal absolute right-0 top-52 w-[16%] h-[300px] hidden lg:block opacity-80" />
 
@@ -443,7 +441,7 @@ export default function Home() {
       </section>
 
       {/* ============ QUEST IN ACTION ============ */}
-      <section className="relative py-6 md:py-8">
+      <section className="cv-auto relative py-6 md:py-8">
         <div className="mx-auto max-w-[1120px] px-5 sm:px-8">
           <div className="reveal pixel-panel-dark p-6 md:p-9 relative">
             <p className="pixel-body text-center text-lg text-pixel-gold mb-7">✦ Quest in Action</p>
@@ -488,16 +486,15 @@ export default function Home() {
       </section>
 
       {/* ============ BLUE CTA SCENE ============ */}
-      <section className="relative py-6 md:py-10">
+      <section className="cv-auto relative py-6 md:py-10">
         <div className="mx-auto max-w-[1120px] px-5 sm:px-8">
           <div className="reveal quest-scene relative overflow-hidden border-4 border-ink">
             {/* scenery */}
             <div className="absolute inset-0 pointer-events-none" aria-hidden>
               <div className="absolute bottom-0 left-0 right-0 h-14 bg-grass" />
-              <div className="absolute bottom-14 left-0 right-0 h-8 bg-sky opacity-60"
-                style={{ transform: `translate3d(${scrollY * 0.03}px,0,0)` }} />
-              <PixelCloud size={110} className="absolute left-[8%] top-6 opacity-90" style={{ transform: `translate3d(${scrollY * 0.08}px,0,0)` }} />
-              <PixelCloud size={80} className="absolute right-[14%] top-10 opacity-70" style={{ transform: `translate3d(${scrollY * -0.06}px,0,0)` }} />
+              <div className="absolute bottom-14 left-0 right-0 h-8 bg-sky opacity-60" data-px="0.03" />
+              <PixelCloud size={110} className="absolute left-[8%] top-6 opacity-90" data-px="0.08" />
+              <PixelCloud size={80} className="absolute right-[14%] top-10 opacity-70" data-px="-0.06" />
               <PixelTree size={64} className="absolute left-[3%] bottom-6" />
               <PixelTree size={52} className="absolute left-[12%] bottom-6" />
               <PixelTree size={70} className="absolute right-[4%] bottom-6" />
@@ -513,15 +510,14 @@ export default function Home() {
               >
                 START YOUR QUEST!
               </Button>
-              <PixelController size={92} className="absolute right-[12%] bottom-4 float-slow hidden md:block"
-                style={{ transform: `translate3d(0, ${Math.sin(scrollY / 200) * 6}px, 0)` }} />
+              <PixelController size={92} className="absolute right-[12%] bottom-4 float-slow hidden md:block" />
             </div>
           </div>
         </div>
       </section>
 
       {/* ============ BENEFITS ============ */}
-      <section className="py-6">
+      <section className="cv-auto py-6">
         <div className="mx-auto max-w-[1120px] px-5 sm:px-8">
           <div className="pixel-panel-dark grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y-4 lg:divide-y-0 lg:divide-x-4 divide-[hsl(var(--border))]">
             {benefits.map((b, i) => (
