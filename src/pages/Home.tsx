@@ -33,22 +33,20 @@ export default function Home() {
   const [questionCount, setQuestionCount] = useState(20);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const worldRef = useRef<HTMLDivElement>(null);
   const { isLoading, setLoading, addSession, sessions, sessionsLoaded, loadSessions, selectSession, deleteSession } = useAppStore();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useParallax(setScrollY);
+  useParallax(worldRef);
   useReveal([sessions.length, tab]);
-  const m = useMouseParallax(heroRef);
+  useMouseParallax(heroRef);
 
   useEffect(() => {
     if (!sessionsLoaded) loadSessions();
   }, [sessionsLoaded, loadSessions]);
-
-  const px = (depth: number) => `translate3d(${(m.x * depth * 2).toFixed(2)}px, ${(m.y * depth * 1.6).toFixed(2)}px, 0)`;
 
   const handleYouTubeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,12 +198,12 @@ export default function Home() {
   ];
 
   return (
-    <div className="quest-world relative overflow-hidden bg-background">
+    <div ref={worldRef} className="quest-world relative overflow-hidden bg-background">
       {/* ---------- LAYER 0/1 : deep field + stars ---------- */}
       <div className="world-backdrop pointer-events-none absolute inset-0" aria-hidden>
-        <div className="absolute inset-0 bg-deep" style={{ transform: `translate3d(0, ${scrollY * -0.02}px, 0)` }} />
-        <div className="absolute inset-0 starfield opacity-80" style={{ transform: `translate3d(0, ${scrollY * -0.05}px, 0)` }} />
-        <div className="absolute inset-0 starfield opacity-40" style={{ transform: `translate3d(0, ${scrollY * -0.1}px, 0) scale(1.7)` }} />
+        <div className="absolute inset-0 bg-deep" data-py="-0.02" />
+        <div className="absolute inset-0 starfield opacity-80" data-py="-0.05" />
+        <div className="absolute inset-0 starfield opacity-40" data-py="-0.1" style={{ scale: "1.7" }} />
         {[
           { l: "8%", t: "6%", c: "hsl(var(--pixel-gold))", s: 12, d: "0s" },
           { l: "22%", t: "14%", c: "hsl(var(--pixel-pink))", s: 9, d: ".5s" },
@@ -258,8 +256,8 @@ export default function Home() {
                 <Button variant="ghost" onClick={() => navigate("/avatar")}><PlayerAvatar avatar={avatar} size={28} />My Hero</Button>
               </div>
               <div className="relative h-[112px] mt-4 hidden md:block" aria-hidden>
-                <PixelWizard size={104} className="absolute left-0 bottom-0 float-slow" style={{ transform: px(8) }} />
-                <PixelSlime size={54} className="absolute left-[140px] bottom-0 float-mid" style={{ transform: px(6) }} />
+                <PixelWizard size={104} className="absolute left-0 bottom-0 float-slow" data-mx="8" />
+                <PixelSlime size={54} className="absolute left-[140px] bottom-0 float-mid" data-mx="6" />
                 <PixelFlower size={20} className="absolute left-[210px] bottom-1" color="hsl(var(--pixel-pink))" />
                 <PixelFlower size={18} className="absolute left-[240px] bottom-0" color="hsl(var(--pixel-gold))" />
               </div>
@@ -267,9 +265,9 @@ export default function Home() {
 
             {/* ---- RIGHT : QUEST CARD ---- */}
             <div className="relative pb-4 md:pb-8">
-              <PixelCloud size={130} className="absolute -top-6 right-2 opacity-90 hidden md:block" style={{ transform: px(10) }} />
-              <PixelPlanet size={70} className="absolute -left-16 -top-8 float-slow hidden xl:block" style={{ transform: px(6) }} />
-              <PixelCoin size={30} className="absolute -right-6 top-28 float-fast hidden md:block" style={{ transform: px(12) }} />
+              <PixelCloud size={130} className="absolute -top-6 right-2 opacity-90 hidden md:block" data-mx="10" />
+              <PixelPlanet size={70} className="absolute -left-16 -top-8 float-slow hidden xl:block" data-mx="6" />
+              <PixelCoin size={30} className="absolute -right-6 top-28 float-fast hidden md:block" data-mx="12" />
 
               <div className="relative z-10 max-w-[500px] mx-auto">
                 {/* pink tag above card */}
@@ -377,7 +375,7 @@ export default function Home() {
                   )}
                 </div>
 
-                <PixelChest size={82} className="absolute -bottom-4 -right-2 float-mid hidden md:block" style={{ transform: px(12) }} />
+                <PixelChest size={82} className="absolute -bottom-4 -right-2 float-mid hidden md:block" data-mx="12" />
               </div>
             </div>
           </div>
@@ -494,10 +492,9 @@ export default function Home() {
             {/* scenery */}
             <div className="absolute inset-0 pointer-events-none" aria-hidden>
               <div className="absolute bottom-0 left-0 right-0 h-14 bg-grass" />
-              <div className="absolute bottom-14 left-0 right-0 h-8 bg-sky opacity-60"
-                style={{ transform: `translate3d(${scrollY * 0.03}px,0,0)` }} />
-              <PixelCloud size={110} className="absolute left-[8%] top-6 opacity-90" style={{ transform: `translate3d(${scrollY * 0.08}px,0,0)` }} />
-              <PixelCloud size={80} className="absolute right-[14%] top-10 opacity-70" style={{ transform: `translate3d(${scrollY * -0.06}px,0,0)` }} />
+              <div className="absolute bottom-14 left-0 right-0 h-8 bg-sky opacity-60" data-px="0.03" />
+              <PixelCloud size={110} className="absolute left-[8%] top-6 opacity-90" data-px="0.08" />
+              <PixelCloud size={80} className="absolute right-[14%] top-10 opacity-70" data-px="-0.06" />
               <PixelTree size={64} className="absolute left-[3%] bottom-6" />
               <PixelTree size={52} className="absolute left-[12%] bottom-6" />
               <PixelTree size={70} className="absolute right-[4%] bottom-6" />
@@ -513,8 +510,7 @@ export default function Home() {
               >
                 START YOUR QUEST!
               </Button>
-              <PixelController size={92} className="absolute right-[12%] bottom-4 float-slow hidden md:block"
-                style={{ transform: `translate3d(0, ${Math.sin(scrollY / 200) * 6}px, 0)` }} />
+              <PixelController size={92} className="absolute right-[12%] bottom-4 float-slow hidden md:block" />
             </div>
           </div>
         </div>
