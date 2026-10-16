@@ -272,7 +272,7 @@ export default function Home() {
               <div className="relative z-10 max-w-[500px] mx-auto">
                 {/* pink tag above card */}
                 <div className="flex justify-center -mb-3 relative z-20">
-                  <div className="pixel-tag bg-pixel-pink text-accent-foreground text-[0.6rem] px-5 py-2.5">START YOUR QUEST</div>
+                  <div className="pixel-tag glow-pulse bg-pixel-pink text-accent-foreground text-[0.6rem] px-5 py-2.5">START YOUR QUEST</div>
                 </div>
 
                 <div className="reveal is-visible pixel-panel p-4 sm:p-6 pt-7">
@@ -385,7 +385,7 @@ export default function Home() {
       </section>
 
       {/* ============ STATS ============ */}
-      <section className="relative py-6 md:py-8">
+      <section className="cv-auto relative py-6 md:py-8">
         <PipeRun d="M10 20 L10 130 L120 130 L120 190" color="hsl(var(--pixel-purple))" className="reveal absolute left-0 top-0 w-[18%] h-[240px] hidden lg:block opacity-90" />
         <PipeRun d="M390 20 L390 120 L280 120 L280 200" color="hsl(var(--pixel-blue))" className="reveal absolute right-0 top-0 w-[18%] h-[240px] hidden lg:block opacity-90" />
 
@@ -413,7 +413,7 @@ export default function Home() {
       </section>
 
       {/* ============ CHOOSE YOUR QUEST ============ */}
-      <section className="relative py-5 md:py-8">
+      <section className="cv-auto relative py-5 md:py-8">
         <PipeRun d="M0 40 L120 40 L120 160 L20 160" color="hsl(var(--pixel-pink))" className="reveal absolute left-0 top-24 w-[16%] h-[280px] hidden lg:block opacity-80" />
         <PipeRun d="M400 40 L300 40 L300 170 L390 170" color="hsl(var(--pixel-green))" className="reveal absolute right-0 top-52 w-[16%] h-[300px] hidden lg:block opacity-80" />
 
@@ -441,7 +441,7 @@ export default function Home() {
       </section>
 
       {/* ============ QUEST IN ACTION ============ */}
-      <section className="relative py-6 md:py-8">
+      <section className="cv-auto relative py-6 md:py-8">
         <div className="mx-auto max-w-[1120px] px-5 sm:px-8">
           <div className="reveal pixel-panel-dark p-6 md:p-9 relative">
             <p className="pixel-body text-center text-lg text-pixel-gold mb-7">✦ Quest in Action</p>
@@ -486,7 +486,7 @@ export default function Home() {
       </section>
 
       {/* ============ BLUE CTA SCENE ============ */}
-      <section className="relative py-6 md:py-10">
+      <section className="cv-auto relative py-6 md:py-10">
         <div className="mx-auto max-w-[1120px] px-5 sm:px-8">
           <div className="reveal quest-scene relative overflow-hidden border-4 border-ink">
             {/* scenery */}
@@ -517,7 +517,7 @@ export default function Home() {
       </section>
 
       {/* ============ BENEFITS ============ */}
-      <section className="py-6">
+      <section className="cv-auto py-6">
         <div className="mx-auto max-w-[1120px] px-5 sm:px-8">
           <div className="pixel-panel-dark grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y-4 lg:divide-y-0 lg:divide-x-4 divide-[hsl(var(--border))]">
             {benefits.map((b, i) => (

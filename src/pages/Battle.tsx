@@ -62,7 +62,7 @@ export default function Battle() {
       <div className="battle-floor absolute inset-x-0 bottom-0 h-14" aria-hidden />
       <div className="relative grid grid-cols-[1fr_auto_1fr] items-center w-full max-w-2xl px-4 gap-3">
         <div className="flex flex-col items-center min-w-0"><span className="pixel-text text-[0.6rem] break-words text-center max-w-full text-cream">{avatar.name}</span><PlayerAvatar avatar={avatar} size={140} className={cn("arena-avatar avatar-idle", phase === "reveal" && latest?.player === latest?.question.correctIndex && "battle-attack")} /><span className="pixel-text text-primary text-sm">{playerScore} XP</span></div>
-        <span className="pixel-text text-primary text-lg duel-vs">VS</span>
+        <span className="pixel-text text-primary text-lg duel-vs glow-pulse">VS</span>
         <div className="flex flex-col items-center min-w-0"><span className="pixel-text text-[0.6rem] text-cream">ARCANE AI</span><PlayerAvatar avatar={rival} size={140} className="arena-avatar avatar-idle rival-avatar" /><span className="pixel-text text-pixel-pink text-sm">{aiScore} XP</span></div>
       </div>
     </div>
