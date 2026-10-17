@@ -11,7 +11,7 @@ export default function Rewards() {
   const intoLevel = player.xp - xpForLevel(level);
   const levelSpan = xpForLevel(level + 1) - xpForLevel(level);
   const earned = earnedBadges(player);
-  const board = [...weeklyRivals(weekKey()), { name: player.avatar.name, xp: player.weeklyXp, you: true }]
+  const board: { name: string; xp: number; you?: boolean }[] = [...weeklyRivals(weekKey()), { name: player.avatar.name, xp: player.weeklyXp, you: true }]
     .sort((a, b) => b.xp - a.xp);
 
   return (
