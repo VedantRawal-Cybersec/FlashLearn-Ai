@@ -3,6 +3,5 @@
 - [x] Add playable one-on-one AI quiz duels using study questions.
 - [x] Strengthen world animations and pointer/scroll parallax with reduced-motion support.
 - [x] Verify avatar saving, complete duel flow and mobile layout.
-- [ ] Match reference typography, navigation, page density and panel outlines.
-- [ ] Finish pixel decorations, motion accessibility and mobile layout.
-- [ ] Verify existing source controls and navigation without changing processing logic.
+- [x] Performance: parallax via DOM transforms, stepped pixel animations, content-visibility.
+- [x] Gamification: XP & levels, claimable badges, daily streaks & quests, weekly leaderboard, shareable win cards.

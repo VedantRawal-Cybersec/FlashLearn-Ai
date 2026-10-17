@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useAppStore } from "@/lib/store";
+import { usePlayer } from "@/lib/player";
+import { XP } from "@/lib/gamification";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, XCircle, ChevronRight, Trophy } from "lucide-react";
@@ -7,6 +9,7 @@ import { CheckCircle2, XCircle, ChevronRight, Trophy } from "lucide-react";
 export default function Quiz() {
   const session = useAppStore((s) => s.currentSession);
   const answerQuestion = useAppStore((s) => s.answerQuizQuestion);
+  const awardXp = usePlayer((s) => s.awardXp);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [animKey, setAnimKey] = useState(0);
@@ -104,7 +107,7 @@ export default function Quiz() {
               <button
                 key={i}
                 disabled={answered}
-                onClick={() => answerQuestion(q.id, i)}
+                onClick={() => { answerQuestion(q.id, i); if (i === q.correctIndex) awardXp(XP.quizCorrect, "quiz"); }}
                 className={cn(
                   "w-full text-left rounded-xl border p-4 text-sm font-medium transition-all duration-200 opacity-0 animate-slide-in-bottom",
                   `stagger-${i + 1}`,

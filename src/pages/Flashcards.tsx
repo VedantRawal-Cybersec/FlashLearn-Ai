@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useAppStore } from "@/lib/store";
+import { usePlayer } from "@/lib/player";
+import { XP } from "@/lib/gamification";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -7,6 +9,7 @@ import { cn } from "@/lib/utils";
 export default function Flashcards() {
   const session = useAppStore((s) => s.currentSession);
   const updateDifficulty = useAppStore((s) => s.updateFlashcardDifficulty);
+  const awardXp = usePlayer((s) => s.awardXp);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [animKey, setAnimKey] = useState(0);
@@ -34,6 +37,7 @@ export default function Flashcards() {
   };
 
   const handleDifficulty = (d: 'easy' | 'medium' | 'hard') => {
+    if (card.difficulty === null) awardXp(XP.flashcardReview, "cards");
     updateDifficulty(card.id, d);
     if (currentIndex < total - 1) goNext();
   };

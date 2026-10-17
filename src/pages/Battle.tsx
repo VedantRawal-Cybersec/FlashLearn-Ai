@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, RotateCcw, Swords, Trophy, Clock, Check, X } from "lucide-react";
+import { ArrowRight, RotateCcw, Swords, Trophy, Clock, Check, X, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PlayerAvatar from "@/components/PlayerAvatar";
 import { usePlayer, PlayerAvatar as AvatarData } from "@/lib/player";
@@ -54,6 +54,25 @@ export default function Battle() {
       setPhase("results");
     } else { locked.current = false; setSeconds(20); setPhase("playing"); }
   };
+  const shareCard = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 600; canvas.height = 340;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.fillStyle = "#141428"; ctx.fillRect(0, 0, 600, 340);
+    ctx.strokeStyle = "#FFB800"; ctx.lineWidth = 8; ctx.strokeRect(8, 8, 584, 324);
+    ctx.fillStyle = "#FFB800"; ctx.font = "bold 28px monospace"; ctx.textAlign = "center";
+    ctx.fillText(playerScore > aiScore ? "VICTORY!" : "GOOD BATTLE!", 300, 80);
+    ctx.fillStyle = "#FFF6E0"; ctx.font = "bold 52px monospace";
+    ctx.fillText(`${playerScore} — ${aiScore}`, 300, 170);
+    ctx.font = "20px monospace";
+    ctx.fillText(`${avatar.name} vs Arcane AI · ${playerScore / 100}/${questions.length} correct`, 300, 230);
+    ctx.fillStyle = "#7EB6FF"; ctx.fillText("FLASH LEARN · QUIZ ARENA", 300, 290);
+    const a = document.createElement("a");
+    a.download = "flash-learn-victory.png";
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+  };
   return <div className="container max-w-5xl px-5 py-8 animate-fade-in">
     <div className="flex justify-between items-center gap-4 mb-6"><div><p className="pixel-text text-primary text-[0.6rem] mb-3">1V1 · VS AI</p><h1>Quiz arena</h1></div><Button asChild variant="outline" size="icon" title="Customize hero"><Link to="/avatar" aria-label="Customize hero"><PlayerAvatar avatar={avatar} size={32} /></Link></Button></div>
     <div ref={stage} className="battle-stage relative overflow-hidden mb-8 min-h-[265px] flex items-center justify-center">
@@ -80,6 +99,6 @@ export default function Battle() {
       <div className="grid gap-3">{(phase === "playing" ? q : latest?.question)?.options.map((option, i) => <Button key={i} variant="outline" disabled={phase === "reveal"} onClick={() => answer(i)} className={cn("h-auto min-h-14 py-3 px-4 justify-start whitespace-normal text-left text-base", phase === "reveal" && i === latest?.question.correctIndex && "border-success bg-success/15 text-foreground", phase === "reveal" && i === latest?.player && i !== latest.question.correctIndex && "border-destructive bg-destructive/15")}>{phase === "reveal" && i === latest?.question.correctIndex ? <Check /> : <span className="text-primary shrink-0">{String.fromCharCode(65 + i)}.</span>}{option}</Button>)}</div></div>
       {phase === "reveal" && latest && <div className="mt-6 animate-fade-in" aria-live="polite"><p className="flex gap-2 items-center text-lg">{latest.player === latest.question.correctIndex ? <Check className="text-success" /> : <X className="text-destructive" />}{latest.player === null ? "Time’s up!" : latest.player === latest.question.correctIndex ? "Your attack lands! +100 XP" : "Missed attack."}</p><p className="text-muted-foreground mt-2">Arcane AI chose: {latest.question.options[latest.ai]} {latest.ai === latest.question.correctIndex ? "(+100 XP)" : "(miss)"}</p><p className="mt-3 text-foreground">{latest.question.explanation ?? `Correct answer: ${latest.question.options[latest.question.correctIndex]}`}</p><Button onClick={next} className="mt-5">{rounds.length === questions.length ? "Battle results" : "Next round"}<ArrowRight /></Button></div>}
     </div>}
-    {phase === "results" && <div className="text-center max-w-2xl mx-auto animate-scale-in" aria-live="polite"><Trophy className="h-14 w-14 text-primary mx-auto mb-5 victory-trophy" /><h2>{playerScore > aiScore ? "Victory!" : playerScore === aiScore ? "An even match!" : "Arcane AI wins!"}</h2><p className="text-xl mt-4">{playerScore} — {aiScore} XP</p><p className="text-muted-foreground mt-2">{playerScore / 100} of {questions.length} correct</p><div className="flex flex-wrap justify-center gap-3 mt-6"><Button onClick={start}><RotateCcw />Rematch</Button><Button variant="outline" onClick={() => setPhase("setup")}>Change challenge</Button></div></div>}
+    {phase === "results" && <div className="text-center max-w-2xl mx-auto animate-scale-in" aria-live="polite"><Trophy className="h-14 w-14 text-primary mx-auto mb-5 victory-trophy" /><h2>{playerScore > aiScore ? "Victory!" : playerScore === aiScore ? "An even match!" : "Arcane AI wins!"}</h2><p className="text-xl mt-4">{playerScore} — {aiScore} XP</p><p className="text-muted-foreground mt-2">{playerScore / 100} of {questions.length} correct</p><div className="flex flex-wrap justify-center gap-3 mt-6"><Button onClick={start}><RotateCcw />Rematch</Button><Button variant="outline" onClick={shareCard}><Share2 />Share win card</Button><Button variant="outline" onClick={() => setPhase("setup")}>Change challenge</Button></div></div>}
   </div>;
 }
