@@ -1,10 +1,13 @@
 import { useAppStore } from "@/lib/store";
+import { usePlayer } from "@/lib/player";
+import { XP } from "@/lib/gamification";
 import { CheckCircle2, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function Roadmap() {
   const session = useAppStore((s) => s.currentSession);
   const toggleItem = useAppStore((s) => s.toggleRoadmapItem);
+  const awardXp = usePlayer((s) => s.awardXp);
 
   if (!session || session.roadmap.length === 0) {
     return (
@@ -36,7 +39,7 @@ export default function Roadmap() {
         {session.roadmap.map((item, i) => (
           <button
             key={item.id}
-            onClick={() => toggleItem(item.id)}
+            onClick={() => { if (!item.completed) awardXp(XP.roadmapStep, "steps"); toggleItem(item.id); }}
             className={cn(
               "w-full text-left rounded-xl border bg-card p-4 flex items-start gap-3 transition-all duration-200 hover-lift opacity-0 animate-fade-in-up",
               `stagger-${Math.min(i + 1, 8)}`,
