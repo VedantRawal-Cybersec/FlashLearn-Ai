@@ -232,7 +232,6 @@
     opacity: 0;
     transform: translate3d(0, 30px, 0);
     transition: opacity 700ms cubic-bezier(0.22,1,0.36,1), transform 700ms cubic-bezier(0.22,1,0.36,1);
-    will-change: transform, opacity;
   }
   .reveal.is-visible { opacity: 1; transform: translate3d(0,0,0); }
   .reveal-strong { transform: translate3d(0, 44px, 0); }
@@ -315,7 +314,12 @@
 .quest-world .float-fast { animation-duration: 2.6s; }
 .quest-world .pixel-card:hover svg { animation: sprite-hop 650ms steps(6); }
 .quest-world .pixel-tag { animation: quest-enter 650ms steps(8) both; }
-.quest-world .starfield { animation: star-drift 40s steps(40) infinite; }
+.quest-world .starfield { overflow: hidden; }
+.quest-world .starfield::before {
+  content: ""; position: absolute; inset: -420px 0 0 0;
+  background: inherit; animation: star-drift 40s steps(40) infinite;
+  will-change: transform; pointer-events: none;
+}
 [data-py], [data-px], [data-mx] { will-change: transform; }
 .battle-floor { animation: arena-floor 5s steps(12) infinite; }
 
@@ -344,7 +348,7 @@
 @keyframes vs-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
 @keyframes arena-floor { to { background-position: 0 28px; } }
 @keyframes sprite-hop { 0%,100% { translate: 0 0; } 40% { translate: 0 -10px; rotate: -4deg; } 70% { rotate: 4deg; } }
-@keyframes star-drift { to { background-position: 420px 210px; } }
+@keyframes star-drift { to { transform: translate3d(420px, 210px, 0); } }
 @media (max-width: 480px) { .arena-avatar { width: 100px; height: 115px; } }
 
 @media (prefers-reduced-motion: reduce) {
