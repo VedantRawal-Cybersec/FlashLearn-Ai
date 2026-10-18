@@ -218,6 +218,29 @@ export default function Home() {
         ].map((s, i) => (
           <PixelStar key={i} size={s.s} className="absolute twinkle" style={{ left: s.l, top: s.t, color: s.c, animationDelay: s.d }} />
         ))}
+        {/* spinning stars */}
+        {[
+          { l: "30%", t: "24%", s: 14, d: "0s" },
+          { l: "78%", t: "30%", s: 12, d: "1.2s" },
+          { l: "55%", t: "48%", s: 10, d: ".7s" },
+        ].map((s, i) => (
+          <PixelStar key={`spin-${i}`} size={s.s} className="absolute star-spin text-pixel-gold" style={{ left: s.l, top: s.t, animationDelay: s.d }} data-py="-0.08" />
+        ))}
+        {/* floating coins */}
+        {[
+          { l: "12%", t: "22%", s: 22, d: "0s", f: "float-mid" },
+          { l: "68%", t: "8%", s: 18, d: ".4s", f: "float-fast" },
+          { l: "40%", t: "70%", s: 20, d: ".9s", f: "float-slow" },
+          { l: "90%", t: "58%", s: 16, d: ".2s", f: "float-mid" },
+        ].map((c, i) => (
+          <PixelCoin key={`coin-${i}`} size={c.s} className={`absolute coin-spin ${c.f}`} style={{ left: c.l, top: c.t, animationDelay: c.d }} data-py="-0.12" />
+        ))}
+        {/* drifting planets */}
+        <PixelPlanet size={54} className="absolute left-[58%] top-[12%] planet-drift opacity-80" data-py="-0.06" />
+        <PixelPlanet size={38} className="absolute left-[3%] top-[58%] planet-drift opacity-60" style={{ animationDelay: "-4s" }} data-py="-0.04" />
+        {/* drifting clouds */}
+        <PixelCloud size={90} className="absolute left-[18%] top-[9%] cloud-drift opacity-40" data-py="-0.07" />
+        <PixelCloud size={64} className="absolute left-[74%] top-[52%] cloud-drift-slow opacity-30" data-py="-0.05" />
       </div>
 
       {/* ============ HERO ============ */}
@@ -235,7 +258,7 @@ export default function Home() {
                 <span className="text-cream">FLASH</span>
                 <br />
                 <span className="text-pixel-gold">LEARN</span>
-                <PixelBolt size={34} className="inline-block ml-3 align-top float-fast" />
+                <PixelBolt size={34} className="inline-block ml-3 align-top float-fast wiggle" />
               </h1>
 
               <div className="inline-block pixel-tag bg-pixel-blue text-accent-foreground text-[0.6rem] px-4 py-2.5 mb-7">
@@ -273,6 +296,7 @@ export default function Home() {
                 {/* pink tag above card */}
                 <div className="flex justify-center -mb-3 relative z-20">
                   <div className="pixel-tag glow-pulse bg-pixel-pink text-accent-foreground text-[0.6rem] px-5 py-2.5">START YOUR QUEST</div>
+                  <p className="blink pixel-text text-[0.5rem] text-pixel-gold text-center mt-3" aria-hidden>▸ INSERT COIN TO PLAY ◂</p>
                 </div>
 
                 <div className="reveal is-visible pixel-panel p-4 sm:p-6 pt-7">
@@ -468,7 +492,7 @@ export default function Home() {
               <div className="reveal stagger-2 flex-1 border-4 border-border bg-deep p-5 flex flex-col items-center justify-center gap-3">
                 <PixelStar size={14} className="text-pixel-gold twinkle" />
                 <p className="pixel-text text-sm text-cream">Correct!</p>
-                <p className="pixel-text text-lg text-pixel-gold">+50 XP</p>
+                <p className="pixel-text text-lg text-pixel-gold xp-pop" style={{ animationIterationCount: "infinite" }}>+50 XP</p>
                 <XPBar value={72} level={12} className="w-full" />
               </div>
 
@@ -510,7 +534,9 @@ export default function Home() {
               >
                 START YOUR QUEST!
               </Button>
-              <PixelController size={92} className="absolute right-[12%] bottom-4 float-slow hidden md:block" />
+<PixelController size={92} className="absolute right-[12%] bottom-4 bob hidden md:block" />
+              <PixelCoin size={24} className="absolute left-[10%] top-6 coin-spin float-fast hidden md:block" />
+              <PixelStar size={16} className="absolute left-[20%] bottom-8 star-spin text-pixel-gold hidden md:block" />
             </div>
           </div>
         </div>
