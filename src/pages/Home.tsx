@@ -650,7 +650,7 @@ function QuestCard({
   ctaInk?: boolean; art: React.ReactNode; index: number; onGo: () => void;
 }) {
   return (
-    <div className={cn("reveal pixel-card relative p-6 pt-8 flex flex-col", `stagger-${index + 1}`)}>
+    <div className={cn("reveal pixel-card relative isolate p-6 pt-8 flex flex-col", `stagger-${index + 1}`)}>
       <div className="pixel-panel absolute inset-0 -z-10" aria-hidden />
       <span className="absolute -top-3 left-4 pixel-tag bg-pixel-pink text-accent-foreground text-[0.5rem] px-2 py-1.5">{n}</span>
       <h3 className="pixel-text text-[0.68rem] text-ink text-center mb-5">{title}</h3>

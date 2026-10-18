@@ -142,6 +142,7 @@
 
   /* ---------- Pixel primitives ---------- */
   .pixel-panel {
+    position: relative;
     background: hsl(var(--cream));
     color: hsl(var(--ink));
     border: 4px solid hsl(var(--ink));
@@ -151,6 +152,7 @@
     border-radius: 0;
   }
   .pixel-panel-dark {
+    position: relative;
     background: hsl(var(--panel-dark));
     color: hsl(var(--foreground));
     border: 2px solid hsl(var(--border));
@@ -396,7 +398,6 @@
 }
 
 /* Shimmer sweep on panels (hover only, GPU transform) */
-.pixel-panel, .pixel-panel-dark { position: relative; }
 .pixel-panel::before, .pixel-panel-dark::before {
   content: "";
   position: absolute;
