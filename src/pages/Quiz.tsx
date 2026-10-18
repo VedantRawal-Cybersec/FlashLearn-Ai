@@ -5,6 +5,7 @@ import { XP } from "@/lib/gamification";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, XCircle, ChevronRight, Trophy } from "lucide-react";
+import CoinBurst from "@/components/CoinBurst";
 
 export default function Quiz() {
   const session = useAppStore((s) => s.currentSession);
@@ -13,6 +14,7 @@ export default function Quiz() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [animKey, setAnimKey] = useState(0);
+  const [burst, setBurst] = useState(0);
 
   if (!session || session.quizQuestions.length === 0) {
     return (
@@ -97,7 +99,8 @@ export default function Quiz() {
         />
       </div>
 
-      <div key={animKey} className="rounded-2xl border bg-card p-6 mb-6 animate-card-flip-in">
+      <div key={animKey} className="relative rounded-2xl border bg-card p-6 mb-6 animate-card-flip-in">
+        {burst > 0 && <CoinBurst key={burst} className="left-1/2 top-1/3" onDone={() => setBurst(0)} />}
         <p className="text-lg font-medium text-foreground mb-6">{q.question}</p>
         <div className="space-y-3">
           {q.options.map((opt, i) => {
@@ -107,7 +110,7 @@ export default function Quiz() {
               <button
                 key={i}
                 disabled={answered}
-                onClick={() => { answerQuestion(q.id, i); if (i === q.correctIndex) awardXp(XP.quizCorrect, "quiz"); }}
+                onClick={() => { answerQuestion(q.id, i); if (i === q.correctIndex) { awardXp(XP.quizCorrect, "quiz"); setBurst((b) => b + 1); } }}
                 className={cn(
                   "w-full text-left rounded-xl border p-4 text-sm font-medium transition-all duration-200 opacity-0 animate-slide-in-bottom",
                   `stagger-${i + 1}`,
