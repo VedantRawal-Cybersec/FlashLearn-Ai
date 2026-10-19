@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useReveal, useParallax, useMouseParallax } from "@/hooks/use-reveal";
 import PlayerAvatar from "@/components/PlayerAvatar";
+import StudyOptions from "@/components/StudyOptions";
+import { DEFAULT_STUDY_OPTIONS } from "../../supabase/functions/_shared/study-options";
 import { usePlayer } from "@/lib/player";
 import {
   PixelStar, PixelCoin, PixelBolt, PixelCloud, PixelPlanet, PixelChest, PixelSlime,
@@ -31,6 +33,7 @@ export default function Home() {
   const [url, setUrl] = useState("");
   const [tab, setTab] = useState<"youtube" | "file">("youtube");
   const [questionCount, setQuestionCount] = useState(20);
+  const [studyOptions, setStudyOptions] = useState(DEFAULT_STUDY_OPTIONS);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -55,7 +58,7 @@ export default function Home() {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-study-materials", {
-        body: { videoUrl: url.trim(), questionCount },
+        body: { videoUrl: url.trim(), ...studyOptions, questionCount },
       });
 
       if (error) throw new Error(error.message || "Failed to generate materials");
@@ -97,6 +100,7 @@ export default function Home() {
           fileBase64: base64,
           fileType: selectedFile.type,
           fileName: selectedFile.name,
+          ...studyOptions,
           questionCount,
         },
       });
@@ -340,6 +344,7 @@ export default function Home() {
                       </div>
 
                       <QuestionStepper value={questionCount} onChange={setQuestionCount} disabled={submitting} />
+                      <StudyOptions value={studyOptions} onChange={setStudyOptions} disabled={submitting} />
 
                       <Button variant="pixel" size="natural" type="submit" disabled={submitting || !url.trim()}
                         className="pixel-btn w-full bg-pixel-green text-accent-foreground flex items-center justify-center gap-3 text-[0.75rem]">
@@ -386,6 +391,7 @@ export default function Home() {
                       </div>
 
                       <QuestionStepper value={questionCount} onChange={setQuestionCount} disabled={submitting} />
+                      <StudyOptions value={studyOptions} onChange={setStudyOptions} disabled={submitting} />
 
                       <Button variant="pixel" size="natural" onClick={handleFileSubmit} disabled={submitting || !selectedFile}
                         className="pixel-btn w-full bg-pixel-green text-accent-foreground flex items-center justify-center gap-3 text-[0.75rem]">
