@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { parseStudyOptions, buildStudyOptionsPrompt, validateQuizQuestions, type StudyOptions } from "../_shared/study-options.ts";
+import { buildExamReferencePrompt, getExamReferences } from "../_shared/exam-references.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -283,7 +285,7 @@ async function extractTextFromFile(
   return { title, content };
 }
 
-async function generateStudyMaterials(title: string, content: string, sourceUrl: string, apiKey: string) {
+async function generateStudyMaterials(title: string, content: string, sourceUrl: string, apiKey: string, options: StudyOptions) {
   const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -304,20 +306,25 @@ async function generateStudyMaterials(title: string, content: string, sourceUrl:
 Title: "${title}"
 Content: "${content.substring(0, 12000)}"
 
+${buildStudyOptionsPrompt(options)}
+${buildExamReferencePrompt(options.examLevel)}
+
 Return this exact JSON structure:
 {
   "flashcards": [
     {"front": "question text", "back": "answer text"}
   ],
   "quizQuestions": [
-    {"question": "question text", "options": ["A", "B", "C", "D"], "correctIndex": 0, "explanation": "brief explanation of why the correct answer is right"}
+    {"question": "question text", "options": ["A", "B", "C", "D"], "correctIndex": 0, "explanation": "correct reasoning and distractor analysis", "questionType": "conceptual"}
   ],
   "roadmap": [
     {"title": "step title", "description": "what to learn"}
-  ]
+  ],
+  "numericalNote": "empty unless source cannot support requested numericals",
+  "examAlignmentNote": "empty unless source is outside selected exam syllabus"
 }
 
-Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them educational and specific to the content.`,
+Make all materials educational, specific to the content and calibrated to the selected preparation level.`,
         },
       ],
       tools: [
@@ -329,6 +336,8 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
             parameters: {
               type: "object",
               properties: {
+                numericalNote: { type: "string" },
+                examAlignmentNote: { type: "string" },
                 flashcards: {
                   type: "array",
                   items: {
@@ -346,8 +355,9 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
                       options: { type: "array", items: { type: "string" } },
                       correctIndex: { type: "integer" },
                       explanation: { type: "string" },
+                      questionType: { type: "string", enum: ["conceptual", "numerical"] },
                     },
-                    required: ["question", "options", "correctIndex", "explanation"],
+                    required: ["question", "options", "correctIndex", "explanation", "questionType"],
                   },
                 },
                 roadmap: {
@@ -359,7 +369,7 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
                   },
                 },
               },
-              required: ["flashcards", "quizQuestions", "roadmap"],
+              required: ["flashcards", "quizQuestions", "roadmap", "numericalNote", "examAlignmentNote"],
             },
           },
         },
@@ -392,16 +402,21 @@ Generate exactly 10 flashcards, 8 quiz questions, and 6 roadmap steps. Make them
     }
   }
 
+  validateQuizQuestions(materials.quizQuestions, options);
+  if (options.includeNumericals && materials.quizQuestions.filter((q: any) => q.questionType === "numerical").length < Math.ceil(options.questionCount / 3) && !materials.numericalNote?.trim()) throw new Error("The AI did not provide your numerical mix or explain why. Please start a new request.");
+  const generation = { options, references: getExamReferences(options.examLevel), numericalNote: materials.numericalNote, examAlignmentNote: materials.examAlignmentNote };
   return {
     id: crypto.randomUUID(),
     title,
     videoUrl: sourceUrl,
     createdAt: new Date().toISOString(),
+    generation,
     flashcards: materials.flashcards.map((c: any, i: number) => ({
       id: `fc-${i}`, front: c.front, back: c.back, difficulty: null,
     })),
     quizQuestions: materials.quizQuestions.map((q: any, i: number) => ({
-      id: `qq-${i}`, question: q.question, options: q.options, correctIndex: q.correctIndex, explanation: q.explanation || "",
+      id: `qq-${i}`, question: q.question, options: q.options, correctIndex: q.correctIndex, explanation: q.explanation || "", questionType: q.questionType,
+      ...(i === 0 ? { generation } : {}),
     })),
     roadmap: materials.roadmap.map((r: any, i: number) => ({
       id: `rm-${i}`, title: r.title, description: r.description, completed: false,
@@ -415,6 +430,9 @@ serve(async (req) => {
   try {
     const body = await req.json();
     const { videoUrl, fileBase64, fileType, fileName } = body;
+    let options: StudyOptions;
+    try { options = parseStudyOptions(body); }
+    catch (error) { return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Invalid study options" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }); }
 
     if (!videoUrl && !fileBase64) {
       return new Response(JSON.stringify({ error: "Provide a YouTube URL or upload a file" }), {
@@ -449,7 +467,7 @@ serve(async (req) => {
       sourceUrl = videoUrl;
     }
 
-    const session = await generateStudyMaterials(title, content, sourceUrl, LOVABLE_API_KEY);
+    const session = await generateStudyMaterials(title, content, sourceUrl, LOVABLE_API_KEY, options);
 
     return new Response(JSON.stringify({ session }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

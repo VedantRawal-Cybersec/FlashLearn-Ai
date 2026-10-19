@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, XCircle, ChevronRight, Trophy } from "lucide-react";
 import CoinBurst from "@/components/CoinBurst";
+import QuizPreparation from "@/components/QuizPreparation";
 
 export default function Quiz() {
   const session = useAppStore((s) => s.currentSession);
@@ -33,6 +34,7 @@ export default function Quiz() {
     return (
       <div className="container max-w-2xl py-10 px-4 animate-fade-in">
         <h1 className="text-2xl font-bold text-foreground mb-6">Quiz Results</h1>
+        <QuizPreparation generation={session.generation} />
         <div className="rounded-2xl border bg-card p-8 text-center mb-8 animate-scale-in">
           <Trophy className="h-10 w-10 text-primary mx-auto mb-3 animate-bounce-subtle" />
           <p className="text-5xl font-extrabold text-primary mb-2">{pct}%</p>
@@ -58,7 +60,7 @@ export default function Quiz() {
                   {!isCorrect && (
                     <>
                       <p className="text-sm text-muted-foreground">
-                        <span className="font-medium text-foreground">Your answer:</span> {q.options[q.userAnswer!]}
+                        <span className="font-medium text-foreground">Your answer:</span> {q.userAnswer === undefined ? "Not answered" : q.options[q.userAnswer]}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         <span className="font-medium text-success">Correct:</span> {q.options[q.correctIndex]}
@@ -92,6 +94,7 @@ export default function Quiz() {
         <span className="text-sm text-muted-foreground font-medium">{currentIndex + 1} / {total}</span>
       </div>
 
+      <QuizPreparation generation={session.generation} />
       <div className="h-1.5 bg-muted rounded-full mb-8 overflow-hidden">
         <div
           className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
@@ -101,6 +104,7 @@ export default function Quiz() {
 
       <div key={animKey} className="relative rounded-2xl border bg-card p-6 mb-6 animate-card-flip-in">
         {burst > 0 && <CoinBurst key={burst} className="left-1/2 top-1/3" onDone={() => setBurst(0)} />}
+        {q.questionType && <p className="text-sm text-primary mb-2 capitalize">{q.questionType} question</p>}
         <p className="text-lg font-medium text-foreground mb-6">{q.question}</p>
         <div className="space-y-3">
           {q.options.map((opt, i) => {
