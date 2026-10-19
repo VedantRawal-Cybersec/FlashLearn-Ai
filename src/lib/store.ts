@@ -1,5 +1,13 @@
 import { create } from 'zustand';
 import { supabase } from '@/integrations/supabase/client';
+import type { StudyOptions } from '../../supabase/functions/_shared/study-options';
+
+export interface GenerationInfo {
+  options: StudyOptions;
+  references: { title: string; url: string; excerpt: string }[];
+  numericalNote?: string;
+  examAlignmentNote?: string;
+}
 
 export interface Flashcard {
   id: string;
@@ -15,6 +23,8 @@ export interface QuizQuestion {
   correctIndex: number;
   explanation?: string;
   userAnswer?: number;
+  questionType?: 'conceptual' | 'numerical';
+  generation?: GenerationInfo;
 }
 
 export interface RoadmapItem {
@@ -32,6 +42,7 @@ export interface StudySession {
   quizQuestions: QuizQuestion[];
   roadmap: RoadmapItem[];
   createdAt: string;
+  generation?: GenerationInfo;
 }
 
 interface AppState {
@@ -59,6 +70,7 @@ function mapRowToSession(row: any): StudySession {
     quizQuestions: (row.quiz_questions as QuizQuestion[]) || [],
     roadmap: (row.roadmap as RoadmapItem[]) || [],
     createdAt: row.created_at,
+    generation: (row.quiz_questions as QuizQuestion[])?.[0]?.generation,
   };
 }
 
