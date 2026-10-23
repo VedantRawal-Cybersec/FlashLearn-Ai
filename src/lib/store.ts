@@ -135,6 +135,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   deleteSession: async (id) => {
+    const pending = saveTimers.get(id);
+    if (pending) clearTimeout(pending);
+    saveTimers.delete(id);
     await supabase.from('study_sessions').delete().eq('id', id);
     set((state) => ({
       sessions: state.sessions.filter((s) => s.id !== id),

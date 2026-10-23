@@ -31,7 +31,8 @@ describe("study generation options", () => {
   it("rejects malformed, miscounted or unwanted numerical questions", () => {
     const options = parseStudyOptions({ questionCount: 5 });
     const q = { question: "A concept?", options: ["A", "B", "C", "D"], correctIndex: 1, explanation: "B follows from the concept.", questionType: "conceptual" };
-    expect(() => validateQuizQuestions(Array(5).fill(q), options)).not.toThrow();
+    expect(() => validateQuizQuestions(Array.from({ length: 5 }, (_, i) => ({ ...q, question: `Concept ${i}?` })), options)).not.toThrow();
+    expect(() => validateQuizQuestions(Array(5).fill(q), options)).toThrow();
     expect(() => validateQuizQuestions(Array(4).fill(q), options)).toThrow();
     expect(() => validateQuizQuestions(Array(5).fill({ ...q, correctIndex: 4 }), options)).toThrow();
     expect(() => validateQuizQuestions(Array(5).fill({ ...q, questionType: "numerical" }), options)).toThrow();
