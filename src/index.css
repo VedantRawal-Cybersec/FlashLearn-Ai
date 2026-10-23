@@ -438,3 +438,6 @@
   .coin-spin, .star-spin, .planet-drift, .cloud-drift, .cloud-drift-slow,
   .blink, .wiggle, .bob, .coin-burst > span, .xp-pop { animation: none !important; }
 }
+
+/* Prevent off-screen sprite animation work without changing any artwork or motion. */
+.motion-paused { animation-play-state: paused !important; }

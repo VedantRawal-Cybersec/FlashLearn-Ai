@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { parseStudyOptions, buildStudyOptionsPrompt, validateQuizQuestions, DIFFICULTIES, EXAM_LEVELS } from "../../supabase/functions/_shared/study-options";
 
 describe("study generation options", () => {
+  it("rejects exam-subject mismatch", () => { expect(() => parseStudyOptions({ examLevel: "neet", subject: "mathematics" })).toThrow(); expect(() => parseStudyOptions({ examLevel: "jee-main", subject: "biology" })).toThrow(); });
+  it("supports Karnataka exams and requested chapter", () => { const options = parseStudyOptions({ examLevel: "kcet", subject: "physics", chapter: "Optics" }); expect(buildStudyOptionsPrompt(options)).toContain("Optics"); });
   it.each(DIFFICULTIES)("accepts %s difficulty and includes it in generation", (difficulty) => {
     const options = parseStudyOptions({ difficulty });
     expect(options.difficulty).toBe(difficulty);
@@ -29,7 +31,8 @@ describe("study generation options", () => {
   it("rejects malformed, miscounted or unwanted numerical questions", () => {
     const options = parseStudyOptions({ questionCount: 5 });
     const q = { question: "A concept?", options: ["A", "B", "C", "D"], correctIndex: 1, explanation: "B follows from the concept.", questionType: "conceptual" };
-    expect(() => validateQuizQuestions(Array(5).fill(q), options)).not.toThrow();
+    expect(() => validateQuizQuestions(Array.from({ length: 5 }, (_, i) => ({ ...q, question: `Concept ${i}?` })), options)).not.toThrow();
+    expect(() => validateQuizQuestions(Array(5).fill(q), options)).toThrow();
     expect(() => validateQuizQuestions(Array(4).fill(q), options)).toThrow();
     expect(() => validateQuizQuestions(Array(5).fill({ ...q, correctIndex: 4 }), options)).toThrow();
     expect(() => validateQuizQuestions(Array(5).fill({ ...q, questionType: "numerical" }), options)).toThrow();

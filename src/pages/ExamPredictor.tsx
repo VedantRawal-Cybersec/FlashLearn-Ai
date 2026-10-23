@@ -65,17 +65,17 @@ export default function ExamPredictor() {
 
   return (
     <div className="container max-w-3xl py-6 px-4">
-      <h1 className="text-2xl font-bold text-foreground mb-2">🎯 Exam Prediction Mode</h1>
-      <p className="text-muted-foreground mb-6 text-sm">Predicts important topics and likely exam questions</p>
+      <h1 className="text-2xl font-bold text-foreground mb-2">🎯 AI Practice Focus</h1>
+      <p className="text-muted-foreground mb-6 text-sm">Suggests practice areas from your lesson, not statistically verified predictions of actual exam questions.</p>
 
       {!predictions ? (
         <div className="text-center py-16 space-y-4">
           <Target className="h-12 w-12 text-primary mx-auto" />
           <p className="text-muted-foreground">
-            Predict exam questions for <span className="font-medium text-foreground">"{session.title}"</span>
+            Suggest question ideas for <span className="font-medium text-foreground">"{session.title}"</span>
           </p>
           <Button onClick={handleGenerate} disabled={loading} size="lg">
-            {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Predicting...</> : <><Target className="h-4 w-4 mr-2" /> Predict Exam Questions</>}
+            {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Predicting...</> : <><Target className="h-4 w-4 mr-2" /> Suggest Practice Questions</>}
           </Button>
         </div>
       ) : (
@@ -89,7 +89,7 @@ export default function ExamPredictor() {
               {predictions.highPriorityTopics?.map((t, i) => (
                 <div key={i} className="border rounded-lg p-3 bg-card">
                   <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 text-xs">High Priority</Badge>
+                    <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 text-xs">Suggested</Badge>
                     <span className="font-medium text-sm text-foreground">{t.topic}</span>
                   </div>
                   <p className="text-xs text-muted-foreground">{t.reason}</p>
@@ -101,7 +101,7 @@ export default function ExamPredictor() {
           {/* Question Types */}
           <section>
             <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-3">
-              <HelpCircle className="h-5 w-5 text-blue-500" /> Frequently Asked Question Types
+              <HelpCircle className="h-5 w-5 text-blue-500" /> Suggested Question Types
             </h2>
             <div className="space-y-3">
               {predictions.frequentlyAskedTypes?.map((qt, i) => (
@@ -123,7 +123,7 @@ export default function ExamPredictor() {
           {/* Predicted Questions */}
           <section>
             <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-3">
-              <Target className="h-5 w-5 text-red-500" /> Most Likely Exam Questions
+              <Target className="h-5 w-5 text-red-500" /> Suggested Practice Questions
             </h2>
             <div className="space-y-3">
               {predictions.predictedQuestions?.map((q, i) => (

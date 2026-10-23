@@ -115,3 +115,23 @@ export function useMouseParallax(ref: React.RefObject<HTMLElement>) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
+
+/** Keep the original decorative animations, but suspend those outside the viewport. */
+export function usePauseOffscreenMotion() {
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
+    const els = Array.from(document.querySelectorAll<HTMLElement>(
+      ".float-slow, .float-mid, .float-fast, .twinkle, .coin-spin, .star-spin, .planet-drift, .cloud-drift, .cloud-drift-slow, .bob, .wiggle"
+    ));
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => e.target.classList.toggle("motion-paused", !e.isIntersecting || document.hidden));
+    }, { rootMargin: "100px" });
+    const onVisibility = () => {
+      if (document.hidden) els.forEach(el => el.classList.add("motion-paused"));
+      else els.forEach(el => { el.classList.remove("motion-paused"); io.unobserve(el); io.observe(el); });
+    };
+    els.forEach(el => io.observe(el));
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => { io.disconnect(); document.removeEventListener("visibilitychange", onVisibility); };
+  }, []);
+}
