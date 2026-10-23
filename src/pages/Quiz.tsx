@@ -12,6 +12,7 @@ export default function Quiz() {
   const session = useAppStore((s) => s.currentSession);
   const answerQuestion = useAppStore((s) => s.answerQuizQuestion);
   const awardXp = usePlayer((s) => s.awardXp);
+  const resetQuizAnswers = useAppStore((s) => s.resetQuizAnswers);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [animKey, setAnimKey] = useState(0);
@@ -77,7 +78,7 @@ export default function Quiz() {
             );
           })}
         </div>
-        <Button className="mt-6 hover-scale" onClick={() => { setShowResults(false); setCurrentIndex(0); }}>
+        <Button className="mt-6 hover-scale" onClick={() => { resetQuizAnswers(); setShowResults(false); setCurrentIndex(0); setAnimKey(k => k + 1); }}>
           Retry Quiz
         </Button>
       </div>

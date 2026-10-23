@@ -59,6 +59,7 @@ interface AppState {
   updateFlashcardDifficulty: (cardId: string, difficulty: 'easy' | 'medium' | 'hard') => void;
   answerQuizQuestion: (questionId: string, answerIndex: number) => void;
   toggleRoadmapItem: (itemId: string) => void;
+  resetQuizAnswers: () => void;
 }
 
 function mapRowToSession(row: any): StudySession {
@@ -74,6 +75,15 @@ function mapRowToSession(row: any): StudySession {
   };
 }
 
+const saveTimers = new Map<string, ReturnType<typeof setTimeout>>();
+function scheduleSave(session: StudySession) {
+  const timer = saveTimers.get(session.id);
+  if (timer) clearTimeout(timer);
+  saveTimers.set(session.id, setTimeout(() => {
+    saveTimers.delete(session.id);
+    void saveSessionToDB(session);
+  }, 400));
+}
 async function saveSessionToDB(session: StudySession) {
   const { error } = await supabase.from('study_sessions').upsert({
     id: session.id,
@@ -111,6 +121,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       .order('created_at', { ascending: false });
     if (error) {
       console.error('Failed to load sessions:', error);
+      set({ sessionsLoaded: true });
       return;
     }
     const sessions = (data || []).map(mapRowToSession);
@@ -139,8 +150,8 @@ export const useAppStore = create<AppState>((set, get) => ({
           c.id === cardId ? { ...c, difficulty } : c
         ),
       };
-      saveSessionToDB(updated);
-      return { currentSession: updated };
+      scheduleSave(updated);
+      return { currentSession: updated, sessions: state.sessions.map(s => s.id === updated.id ? updated : s) };
     }),
 
   answerQuizQuestion: (questionId, answerIndex) =>
@@ -152,9 +163,17 @@ export const useAppStore = create<AppState>((set, get) => ({
           q.id === questionId ? { ...q, userAnswer: answerIndex } : q
         ),
       };
-      saveSessionToDB(updated);
-      return { currentSession: updated };
+      scheduleSave(updated);
+      return { currentSession: updated, sessions: state.sessions.map(s => s.id === updated.id ? updated : s) };
     }),
+
+  resetQuizAnswers: () => {
+    const previous = get().currentSession;
+    if (!previous) return;
+    const updated: StudySession = { ...previous, quizQuestions: previous.quizQuestions.map(({ userAnswer, ...q }) => q) };
+    set(state => ({ currentSession: updated, sessions: state.sessions.map(s => s.id === updated.id ? updated : s) }));
+    scheduleSave(updated);
+  },
 
   toggleRoadmapItem: (itemId) =>
     set((state) => {
@@ -165,7 +184,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           r.id === itemId ? { ...r, completed: !r.completed } : r
         ),
       };
-      saveSessionToDB(updated);
-      return { currentSession: updated };
+      scheduleSave(updated);
+      return { currentSession: updated, sessions: state.sessions.map(s => s.id === updated.id ? updated : s) };
     }),
 }));

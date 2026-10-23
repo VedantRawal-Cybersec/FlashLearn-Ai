@@ -92,9 +92,7 @@ async function tryPipedAPI(videoId: string): Promise<{ title: string; transcript
         }
       }
 
-      if (data.description && title) {
-        return { title, transcript: data.description };
-      }
+      // A video description is not a transcript: do not pretend it contains the lesson.
     } catch (e) {
       console.error(`Piped instance ${base} failed:`, e);
     }
@@ -158,7 +156,7 @@ async function tryInvidious(videoId: string): Promise<{ title: string; transcrip
         }
       }
 
-      if (description.length > 100) return { title, transcript: description };
+      // Never substitute the video description for verified caption text.
     } catch (e) {
       console.error(`Invidious instance ${base} failed:`, e);
     }
@@ -209,15 +207,7 @@ async function getTranscript(videoId: string): Promise<{ title: string; transcri
     return { title: result4.title || scrapedTitle, transcript: result4.transcript };
   }
 
-  const result5 = await tryOEmbed(videoId);
-  const finalTitle = scrapedTitle || result2?.title || result4?.title || result5?.title || `YouTube Video ${videoId}`;
-  const partialContent = [result2?.transcript, result4?.transcript].filter(Boolean).join(" ");
-
-  console.log("Using fallback: title + partial content for AI generation");
-  return {
-    title: finalTitle,
-    transcript: partialContent || `This is a video titled "${finalTitle}". Generate educational study materials based on what this topic likely covers.`,
-  };
+  throw new Error("Could not retrieve reliable captions for this video. Try a video with subtitles or upload lecture notes/PDF instead. No questions were invented from the video title.");
 }
 
 // Extract text from file using AI vision
@@ -304,7 +294,7 @@ async function generateStudyMaterials(title: string, content: string, sourceUrl:
           content: `Generate study materials from this content.
 
 Title: "${title}"
-Content: "${content.substring(0, 12000)}"
+Content: "${content.substring(0, 18000)}"
 
 ${buildStudyOptionsPrompt(options)}
 ${buildExamReferencePrompt(options.examLevel)}

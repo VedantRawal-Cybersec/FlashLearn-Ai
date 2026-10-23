@@ -6,7 +6,7 @@ import { Loader2, Youtube, Clock, Trash2, Upload, FileText, Image, X, Minus, Plu
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useReveal, useParallax, useMouseParallax } from "@/hooks/use-reveal";
+import { useReveal, useParallax, useMouseParallax, usePauseOffscreenMotion } from "@/hooks/use-reveal";
 import PlayerAvatar from "@/components/PlayerAvatar";
 import StudyOptions from "@/components/StudyOptions";
 import { DEFAULT_STUDY_OPTIONS } from "../../supabase/functions/_shared/study-options";
@@ -44,6 +44,7 @@ export default function Home() {
   const { toast } = useToast();
 
   useParallax(worldRef);
+  usePauseOffscreenMotion();
   useReveal([sessions.length, tab]);
   useMouseParallax(heroRef);
 
