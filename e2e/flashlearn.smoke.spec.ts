@@ -33,8 +33,11 @@ test("private session survives reload; exam drill and coach use real answers", a
     roadmap: [],
   };
   await page.addInitScript(session => {
-    localStorage.setItem("flashlearn-private-sessions-v1", JSON.stringify([session]));
-    localStorage.setItem("flashlearn-current-session-v1", session.id);
+    if (!sessionStorage.getItem("flashlearn-e2e-seeded")) {
+      localStorage.setItem("flashlearn-private-sessions-v1", JSON.stringify([session]));
+      localStorage.setItem("flashlearn-current-session-v1", session.id);
+      sessionStorage.setItem("flashlearn-e2e-seeded", "true");
+    }
   }, sample);
   await page.goto("/");
   await page.goto("/drill");

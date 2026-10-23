@@ -33,6 +33,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const avatar = usePlayer((s) => s.avatar);
   const { theme, toggleTheme } = useTheme();
   const session = useAppStore((s) => s.currentSession);
+  const sessionsLoaded = useAppStore((s) => s.sessionsLoaded);
+  const loadSessions = useAppStore((s) => s.loadSessions);
+  useEffect(() => {
+    // Restore the active lesson on direct URLs and browser reloads, not only on Home.
+    if (!sessionsLoaded) void loadSessions();
+  }, [sessionsLoaded, loadSessions]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [scrolled, setScrolled] = useState(false);
