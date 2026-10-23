@@ -33,10 +33,26 @@ export default function Coach() {
   }, [sessions, current]);
   const total = topics.reduce((n,t)=>n+t.attempted,0);
   const correct = topics.reduce((n,t)=>n+t.correct,0);
+  const exportBackup = () => {
+    const all = current ? [current, ...sessions.filter(s => s.id !== current.id)] : sessions;
+    const file = new Blob([JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), sessions: all }, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(file);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "flash-learn-study-backup.json";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  };
   return <div className="container max-w-5xl px-5 py-10 space-y-8 animate-fade-in">
     <header className="pixel-panel p-6 space-y-3">
       <h1 className="text-3xl font-bold flex items-center gap-3"><BrainCircuit aria-hidden="true"/> Your Study Coach</h1>
       <p className="text-muted-foreground">A revision plan from your attempted questions and rated flashcards, not an unverified AI mastery estimate.</p>
+      <div className="space-y-2">
+        <button type="button" className="pixel-btn" onClick={exportBackup}>Export my study data</button>
+        <p className="text-sm text-muted-foreground">Your study history is stored on this browser until secure account synchronization is enabled. Keep your backup file private; it contains your learning records.</p>
+      </div>
     </header>
     <div className="grid sm:grid-cols-3 gap-4">
       <div className="pixel-panel p-5"><p>Questions attempted</p><strong className="text-3xl">{total}</strong></div>
