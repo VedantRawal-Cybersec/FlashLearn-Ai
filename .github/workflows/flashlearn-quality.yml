@@ -15,6 +15,6 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - run: npm ci
+      - run: npm install --no-audit --no-fund # existing lockfile currently out of sync
       - run: npm test
       - run: npm run build

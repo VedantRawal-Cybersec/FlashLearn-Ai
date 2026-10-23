@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { parseStudyOptions, buildStudyOptionsPrompt, validateQuizQuestions, DIFFICULTIES, EXAM_LEVELS } from "../../supabase/functions/_shared/study-options";
 
 describe("study generation options", () => {
+  it("rejects exam-subject mismatch", () => { expect(() => parseStudyOptions({ examLevel: "neet", subject: "mathematics" })).toThrow(); expect(() => parseStudyOptions({ examLevel: "jee-main", subject: "biology" })).toThrow(); });
+  it("supports Karnataka exams and requested chapter", () => { const options = parseStudyOptions({ examLevel: "kcet", subject: "physics", chapter: "Optics" }); expect(buildStudyOptionsPrompt(options)).toContain("Optics"); });
   it.each(DIFFICULTIES)("accepts %s difficulty and includes it in generation", (difficulty) => {
     const options = parseStudyOptions({ difficulty });
     expect(options.difficulty).toBe(difficulty);

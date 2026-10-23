@@ -305,7 +305,7 @@ Return this exact JSON structure:
     {"front": "question text", "back": "answer text"}
   ],
   "quizQuestions": [
-    {"question": "question text", "options": ["A", "B", "C", "D"], "correctIndex": 0, "explanation": "correct reasoning and distractor analysis", "questionType": "conceptual"}
+    {"question": "question text", "options": ["A", "B", "C", "D"], "correctIndex": 0, "explanation": "correct reasoning and distractor analysis", "questionType": "conceptual", "topic": "short topic"}
   ],
   "roadmap": [
     {"title": "step title", "description": "what to learn"}
@@ -346,6 +346,7 @@ Make all materials educational, specific to the content and calibrated to the se
                       correctIndex: { type: "integer" },
                       explanation: { type: "string" },
                       questionType: { type: "string", enum: ["conceptual", "numerical"] },
+                      topic: { type: "string" },
                     },
                     required: ["question", "options", "correctIndex", "explanation", "questionType"],
                   },
@@ -405,7 +406,7 @@ Make all materials educational, specific to the content and calibrated to the se
       id: `fc-${i}`, front: c.front, back: c.back, difficulty: null,
     })),
     quizQuestions: materials.quizQuestions.map((q: any, i: number) => ({
-      id: `qq-${i}`, question: q.question, options: q.options, correctIndex: q.correctIndex, explanation: q.explanation || "", questionType: q.questionType,
+      id: `qq-${i}`, question: q.question, options: q.options, correctIndex: q.correctIndex, explanation: q.explanation || "", questionType: q.questionType, topic: typeof q.topic === "string" ? q.topic : (options.chapter || options.subject || "General"),
       ...(i === 0 ? { generation } : {}),
     })),
     roadmap: materials.roadmap.map((r: any, i: number) => ({

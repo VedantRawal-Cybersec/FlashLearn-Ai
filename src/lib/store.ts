@@ -24,6 +24,7 @@ export interface QuizQuestion {
   explanation?: string;
   userAnswer?: number;
   questionType?: 'conceptual' | 'numerical';
+  topic?: string;
   generation?: GenerationInfo;
 }
 
