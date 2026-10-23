@@ -17,4 +17,5 @@ jobs:
           cache: npm
       - run: npm install --no-audit --no-fund # existing lockfile currently out of sync
       - run: npm test
+      - run: npx tsc -p tsconfig.app.json --noEmit
       - run: npm run build
