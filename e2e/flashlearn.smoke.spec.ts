@@ -1,0 +1,69 @@
+import { test, expect } from "@playwright/test";
+
+test("home renders, study options appear, and routes have no 404", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", err => errors.push(err.message));
+  await page.goto("/");
+  await expect(page.getByText("PIXEL QUEST STUDY WORLD")).toBeVisible();
+  await expect(page.getByText("YOUR LEARNING ADVENTURE STARTS HERE")).toBeVisible();
+  await expect(page.getByText("250K+")).toHaveCount(0);
+  await page.getByRole("button", { name: "Open navigation" }).click();
+  await expect(page.getByRole("link", { name: /Study Coach/i })).toBeVisible();
+  await page.goto("/coach");
+  await expect(page.getByRole("heading", { name: "Your Study Coach" })).toBeVisible();
+  await page.goto("/drill");
+  await expect(page.getByText("Create a study session before entering Exam Drill.")).toBeVisible();
+  await expect(page.getByText("Oops! Page not found")).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test("private session survives reload; exam drill and coach use real answers", async ({ page }) => {
+  const sample = {
+    id: "smoke-session", title: "Physics Optics", videoUrl: "",
+    createdAt: "2026-10-23T00:00:00Z",
+    generation: { options: { difficulty: "medium", examLevel: "neet", includeNumericals: false, questionCount: 5, subject: "physics", chapter: "Optics" }, references: [] },
+    flashcards: [{ id: "fc-0", front: "What is refraction?", back: "Light changing direction", difficulty: "hard" }],
+    quizQuestions: Array.from({ length: 5 }, (_, i) => ({
+      id: "q-" + i,
+      question: "Optics sample question " + i + "?",
+      options: ["Correct", "Wrong B", "Wrong C", "Wrong D"],
+      correctIndex: 0, explanation: "Verified synthetic test fixture", topic: "Optics",
+      questionType: "conceptual",
+    })),
+    roadmap: [],
+  };
+  await page.addInitScript(session => {
+    if (!sessionStorage.getItem("flashlearn-e2e-seeded")) {
+      localStorage.setItem("flashlearn-private-sessions-v1", JSON.stringify([session]));
+      localStorage.setItem("flashlearn-current-session-v1", session.id);
+      sessionStorage.setItem("flashlearn-e2e-seeded", "true");
+    }
+  }, sample);
+  await page.goto("/");
+  await page.goto("/drill");
+  await expect(page.getByRole("heading", { name: "Timed Exam Drill" })).toBeVisible();
+  await page.getByRole("button", { name: "Start drill" }).click();
+  for (let i = 0; i < 5; i++) {
+    await expect(page.getByText("Optics sample question " + i + "?")).toBeVisible();
+    await page.getByRole("button", { name: "A. Correct" }).click();
+    if (i < 4) await page.getByRole("button", { name: "Next" }).click();
+  }
+  await page.getByRole("button", { name: "Submit" }).click();
+  await expect(page.getByText("20 / 20")).toBeVisible();
+  await page.reload();
+  await page.goto("/coach");
+  await expect(page.getByRole("heading", { name: "Your Study Coach" })).toBeVisible();
+  await expect(page.getByText("100%").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Export my study data" })).toBeVisible();
+});
+
+test("mobile layout keeps content within viewport", async ({ page }, info) => {
+  test.skip(!info.project.name.includes("mobile"), "Mobile-specific test");
+  await page.goto("/");
+  await expect(page.getByText("PIXEL QUEST STUDY WORLD")).toBeVisible();
+  const geometry = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    scroll: document.documentElement.scrollWidth,
+  }));
+  expect(geometry.scroll).toBeLessThanOrEqual(geometry.viewport + 2);
+});

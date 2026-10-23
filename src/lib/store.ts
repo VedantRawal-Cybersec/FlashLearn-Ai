@@ -185,7 +185,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       return answers[q.id] === undefined ? rest : { ...rest, userAnswer: answers[q.id] };
     }) };
     set(state => ({ currentSession: updated, sessions: state.sessions.map(s => s.id === updated.id ? updated : s) }));
-    scheduleSave(updated);
+    // Exam submission must be durable immediately, even if the student reloads at once.
+    void saveSessionToDB(updated);
   },
 
   resetQuizAnswers: () => {
@@ -209,3 +210,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       return { currentSession: updated, sessions: state.sessions.map(s => s.id === updated.id ? updated : s) };
     }),
 }));
+
+// Flush buffered edits when the browser navigates away or refreshes.
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", () => {
+    const session = useAppStore.getState().currentSession;
+    if (!session) return;
+    const timer = saveTimers.get(session.id);
+    if (timer) clearTimeout(timer);
+    saveTimers.delete(session.id);
+    void saveSessionToDB(session);
+  });
+}

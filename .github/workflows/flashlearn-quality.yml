@@ -19,3 +19,7 @@ jobs:
       - run: npm test
       - run: npx tsc -p tsconfig.app.json --noEmit
       - run: npm run build
+      - name: Install Chromium for E2E
+        run: npx playwright install --with-deps chromium
+      - name: Browser smoke tests — desktop and mobile
+        run: npx playwright test --config=playwright.public-smoke.config.ts

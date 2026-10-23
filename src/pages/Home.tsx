@@ -19,11 +19,11 @@ import {
   PixelTree, PixelHeart, XPBar, PipeRun,
 } from "@/components/PixelArt";
 
-/* Editable placeholder stats (replaced by real numbers when the user has sessions) */
+/* Never display invented user counts, reviews or other unverifiable social proof. */
 const SHOWCASE_STATS = [
-  { value: "250K+", label: "Quests Created" },
-  { value: "10M+", label: "Questions Answered" },
-  { value: "4.9★", label: "Learner Rating" },
+  { value: "0", label: "Quests Created" },
+  { value: "0", label: "Questions Ready" },
+  { value: "0", label: "Cards Forged" },
 ];
 
 const QUESTION_PRESETS = [5, 10, 20, 30, 50];
@@ -161,7 +161,7 @@ export default function Home() {
   const questCards = [
     {
       n: "01", title: "QUIZ BATTLES", cta: "START BATTLE!", ctaColor: "hsl(var(--pixel-blue))", to: "/quiz",
-      desc: ["Challenge yourself with", "AI-generated quizzes.", "Beat your high score and", "conquer the leaderboards!"],
+      desc: ["Challenge yourself with", "AI-generated quizzes.", "Review your mistakes and", "improve your score!"],
       art: (
         <div className="flex items-center justify-center gap-2">
           <PixelKnight size={64} className="float-mid" />
@@ -199,7 +199,7 @@ export default function Home() {
     { Art: PixelChip, title: "AI-Powered", desc: ["Smart content from", "any video"] },
     { Art: PixelHeartShield, title: "Fun & Engaging", desc: ["Gamified learning", "that sticks"] },
     { Art: PixelPhone, title: "Study Anywhere", desc: ["Web, mobile,", "anytime"] },
-    { Art: PixelLock, title: "Safe & Secure", desc: ["Your data,", "always protected"] },
+    { Art: PixelLock, title: "Device-Private", desc: ["New study history", "stays on this device"] },
   ];
 
   return (
@@ -423,7 +423,7 @@ export default function Home() {
         <div className="mx-auto max-w-[1040px] px-6">
           <div className="reveal pixel-panel-dark px-6 py-6 md:px-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
             <div className="flex-1">
-              <p className="pixel-text text-[0.55rem] text-pixel-gold mb-3">TRUSTED BY THOUSANDS OF LEARNERS</p>
+              <p className="pixel-text text-[0.55rem] text-pixel-gold mb-3">YOUR LEARNING ADVENTURE STARTS HERE</p>
               <div className="flex -space-x-1">
                 {[PixelWizard, PixelKnight, PixelHeroine, PixelAstronaut, PixelSlime, PixelMonster].map((Art, i) => (
                   <Art key={i} size={28} />
