@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { supabase } from '@/integrations/supabase/client';
 import type { StudyOptions } from '../../supabase/functions/_shared/study-options';
 
 export interface GenerationInfo {
@@ -86,26 +85,32 @@ function scheduleSave(session: StudySession) {
     void saveSessionToDB(session);
   }, 400));
 }
-async function saveSessionToDB(session: StudySession) {
-  const { error } = await supabase.from('study_sessions').upsert({
-    id: session.id,
-    title: session.title,
-    video_url: session.videoUrl,
-    flashcards: session.flashcards as any,
-    quiz_questions: session.quizQuestions as any,
-    roadmap: session.roadmap as any,
-    quiz_submitted: session.quizQuestions.some((q) => q.userAnswer !== undefined),
-  });
-  if (error) console.error('Failed to save session:', error);
+const STORAGE_KEY = "flashlearn-private-sessions-v1";
+const SELECTED_KEY = "flashlearn-current-session-v1";
+function readPrivateSessions(): StudySession[] {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    return Array.isArray(parsed)
+      ? parsed.filter((s: any) => s && typeof s.id === "string" && Array.isArray(s.flashcards) && Array.isArray(s.quizQuestions))
+      : [];
+  } catch (e) { console.error("Could not read local study sessions", e); return []; }
 }
-
+function writePrivateSessions(sessions: StudySession[]): void {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions)); }
+  catch (e) { console.error("Local session storage is full or unavailable. Export or delete old sessions.", e); }
+}
+async function saveSessionToDB(session: StudySession) {
+  // The legacy shared backend has no owner-scoped RLS; do not send NEW student data there.
+  const sessions = readPrivateSessions();
+  writePrivateSessions([session, ...sessions.filter(s => s.id !== session.id)]);
+}
 export const useAppStore = create<AppState>((set, get) => ({
   currentSession: null,
   sessions: [],
   isLoading: false,
   sessionsLoaded: false,
 
-  setCurrentSession: (session) => set({ currentSession: session }),
+  setCurrentSession: (session) => { try { localStorage.setItem(SELECTED_KEY, session.id); } catch {} set({ currentSession: session }); },
   setLoading: (loading) => set({ isLoading: loading }),
 
   addSession: (session) => {
@@ -113,33 +118,33 @@ export const useAppStore = create<AppState>((set, get) => ({
       sessions: [session, ...state.sessions],
       currentSession: session,
     }));
-    saveSessionToDB(session);
+    try { localStorage.setItem(SELECTED_KEY, session.id); } catch {}
+    void saveSessionToDB(session);
   },
 
   loadSessions: async () => {
-    const { data, error } = await supabase
-      .from('study_sessions')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) {
-      console.error('Failed to load sessions:', error);
-      set({ sessionsLoaded: true });
-      return;
-    }
-    const sessions = (data || []).map(mapRowToSession);
-    set({ sessions, sessionsLoaded: true });
+    const sessions = readPrivateSessions();
+    let selected = "";
+    try { selected = localStorage.getItem(SELECTED_KEY) || ""; } catch {}
+    set(state => ({
+      sessions, sessionsLoaded: true,
+      currentSession: state.currentSession || sessions.find(s => s.id === selected) || sessions[0] || null,
+    }));
   },
 
   selectSession: (id) => {
     const session = get().sessions.find((s) => s.id === id);
-    if (session) set({ currentSession: session });
+    if (session) {
+      try { localStorage.setItem(SELECTED_KEY, id); } catch {}
+      set({ currentSession: session });
+    }
   },
 
   deleteSession: async (id) => {
     const pending = saveTimers.get(id);
     if (pending) clearTimeout(pending);
     saveTimers.delete(id);
-    await supabase.from('study_sessions').delete().eq('id', id);
+    writePrivateSessions(readPrivateSessions().filter(s => s.id !== id));
     set((state) => ({
       sessions: state.sessions.filter((s) => s.id !== id),
       currentSession: state.currentSession?.id === id ? null : state.currentSession,

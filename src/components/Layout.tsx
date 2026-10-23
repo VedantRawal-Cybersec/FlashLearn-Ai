@@ -52,7 +52,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => setMobileMenuOpen(false), [location.pathname]);
 
   const renderLink = (item: typeof navItems[number]) => {
-    const disabled = !["/", "/avatar", "/battle", "/rewards"].includes(item.path) && !session;
+    const disabled = !["/", "/avatar", "/battle", "/rewards", "/coach"].includes(item.path) && !session;
     const active = location.pathname === item.path;
     const Icon = item.icon;
     return (

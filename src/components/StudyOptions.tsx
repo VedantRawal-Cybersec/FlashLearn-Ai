@@ -33,6 +33,6 @@ export default function StudyOptions({ value, onChange, disabled }: { value: Opt
       <Checkbox checked={value.includeNumericals} onCheckedChange={(checked) => onChange({ ...value, includeNumericals: checked === true })} disabled={disabled} className="border-ink data-[state=checked]:bg-pixel-blue data-[state=checked]:text-accent-foreground" />
       Include numerical questions?
     </label>
-    <p className="text-xs opacity-80">Original AI topic practice; not an official past paper or full-format mock. Verify important answers.</p>
+    <p className="text-xs opacity-80">Original AI topic practice; not an official past paper or full-format mock. Verify important answers. Private learning history currently saves on this device only.</p>
   </div>;
 }
