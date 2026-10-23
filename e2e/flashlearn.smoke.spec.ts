@@ -53,7 +53,7 @@ test("private session survives reload; exam drill and coach use real answers", a
   await page.reload();
   await page.goto("/coach");
   await expect(page.getByRole("heading", { name: "Your Study Coach" })).toBeVisible();
-  await expect(page.getByText("100%")).toBeVisible();
+  await expect(page.getByText("100%").first()).toBeVisible();
   await expect(page.getByRole("button", { name: "Export my study data" })).toBeVisible();
 });
 
