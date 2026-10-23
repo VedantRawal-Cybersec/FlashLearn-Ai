@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, BookOpen, Sun, Moon, Zap, AlertTriangle, Target, TrendingDown, Network, Menu, X, Swords, UserRound, Trophy } from "lucide-react";
+import { BrainCircuit, Timer, LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, BookOpen, Sun, Moon, Zap, AlertTriangle, Target, TrendingDown, Network, Menu, X, Swords, UserRound, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
 import { useAppStore } from "@/lib/store";
@@ -15,6 +15,8 @@ const navItems = [
   { path: "/avatar", label: "My Hero", icon: UserRound },
   { path: "/rewards", label: "Rewards", icon: Trophy },
   { path: "/dashboard", label: "Progress", icon: LayoutDashboard },
+  { path: "/coach", label: "Study Coach", icon: BrainCircuit },
+  { path: "/drill", label: "Exam Drill", icon: Timer },
   { path: "/flashcards", label: "Flashcards", icon: Layers },
   { path: "/quiz", label: "Quiz Battle", icon: HelpCircle },
   { path: "/roadmap", label: "Roadmap", icon: Map },

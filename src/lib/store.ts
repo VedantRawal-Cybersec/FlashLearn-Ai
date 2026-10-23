@@ -61,6 +61,7 @@ interface AppState {
   answerQuizQuestion: (questionId: string, answerIndex: number) => void;
   toggleRoadmapItem: (itemId: string) => void;
   resetQuizAnswers: () => void;
+  submitQuizAnswers: (answers: Record<string, number>) => void;
 }
 
 function mapRowToSession(row: any): StudySession {
@@ -170,6 +171,17 @@ export const useAppStore = create<AppState>((set, get) => ({
       scheduleSave(updated);
       return { currentSession: updated, sessions: state.sessions.map(s => s.id === updated.id ? updated : s) };
     }),
+
+  submitQuizAnswers: (answers) => {
+    const previous = get().currentSession;
+    if (!previous) return;
+    const updated: StudySession = { ...previous, quizQuestions: previous.quizQuestions.map(q => {
+      const { userAnswer, ...rest } = q;
+      return answers[q.id] === undefined ? rest : { ...rest, userAnswer: answers[q.id] };
+    }) };
+    set(state => ({ currentSession: updated, sessions: state.sessions.map(s => s.id === updated.id ? updated : s) }));
+    scheduleSave(updated);
+  },
 
   resetQuizAnswers: () => {
     const previous = get().currentSession;

@@ -7,6 +7,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Layout from "@/components/Layout";
 const Home = lazy(() => import("@/pages/Home"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const Coach = lazy(() => import("@/pages/Coach"));
+const ExamDrill = lazy(() => import("@/pages/ExamDrill"));
 const Flashcards = lazy(() => import("@/pages/Flashcards"));
 const Quiz = lazy(() => import("@/pages/Quiz"));
 const Roadmap = lazy(() => import("@/pages/Roadmap"));
@@ -37,6 +39,8 @@ const App = () => (
 <Route path="/battle" element={<Battle />} />
             <Route path="/rewards" element={<Rewards />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/coach" element={<Coach />} />
+            <Route path="/drill" element={<ExamDrill />} />
             <Route path="/flashcards" element={<Flashcards />} />
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/roadmap" element={<Roadmap />} />
