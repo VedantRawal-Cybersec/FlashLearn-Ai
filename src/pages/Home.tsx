@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useState, useEffect, useRef } from "react";
+import { memo, useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/lib/store";
 import { Loader2, Youtube, Clock, Trash2, Upload, FileText, Image, X, Minus, Plus } from "lucide-react";
@@ -27,6 +27,55 @@ const SHOWCASE_STATS = [
 ];
 
 const QUESTION_PRESETS = [5, 10, 20, 30, 50];
+
+const WorldBackdrop = memo(function WorldBackdrop() {
+  return (
+    <div className="world-backdrop pointer-events-none absolute inset-0" aria-hidden>
+        <div className="absolute inset-0 bg-deep" data-py="-0.02" />
+        <div className="absolute inset-0 starfield opacity-80" data-py="-0.05" />
+        <div className="absolute inset-0 starfield opacity-40" data-py="-0.1" style={{ scale: "1.7" }} />
+        {[
+          { l: "8%", t: "6%", c: "hsl(var(--pixel-gold))", s: 12, d: "0s" },
+          { l: "22%", t: "14%", c: "hsl(var(--pixel-pink))", s: 9, d: ".5s" },
+          { l: "46%", t: "5%", c: "hsl(var(--cream))", s: 10, d: "1.1s" },
+          { l: "63%", t: "18%", c: "hsl(var(--pixel-blue))", s: 11, d: ".8s" },
+          { l: "86%", t: "10%", c: "hsl(var(--pixel-gold))", s: 9, d: "1.6s" },
+          { l: "5%", t: "38%", c: "hsl(var(--pixel-purple))", s: 10, d: ".3s" },
+          { l: "92%", t: "44%", c: "hsl(var(--pixel-pink))", s: 12, d: "1.3s" },
+          { l: "35%", t: "56%", c: "hsl(var(--cream))", s: 8, d: ".9s" },
+          { l: "72%", t: "66%", c: "hsl(var(--pixel-gold))", s: 10, d: "1.8s" },
+          { l: "14%", t: "72%", c: "hsl(var(--pixel-green))", s: 9, d: ".6s" },
+        ].map((s, i) => (
+          <PixelStar key={i} size={s.s} className="absolute twinkle" style={{ left: s.l, top: s.t, color: s.c, animationDelay: s.d }} />
+        ))}
+        {/* spinning stars */}
+        {[
+          { l: "30%", t: "24%", s: 14, d: "0s" },
+          { l: "78%", t: "30%", s: 12, d: "1.2s" },
+          { l: "55%", t: "48%", s: 10, d: ".7s" },
+        ].map((s, i) => (
+          <PixelStar key={`spin-${i}`} size={s.s} className="absolute star-spin text-pixel-gold" style={{ left: s.l, top: s.t, animationDelay: s.d }} data-py="-0.08" />
+        ))}
+        {/* floating coins */}
+        {[
+          { l: "12%", t: "22%", s: 22, d: "0s", f: "float-mid" },
+          { l: "68%", t: "8%", s: 18, d: ".4s", f: "float-fast" },
+          { l: "40%", t: "70%", s: 20, d: ".9s", f: "float-slow" },
+          { l: "90%", t: "58%", s: 16, d: ".2s", f: "float-mid" },
+        ].map((c, i) => (
+          <PixelCoin key={`coin-${i}`} size={c.s} className={`absolute coin-spin ${c.f}`} style={{ left: c.l, top: c.t, animationDelay: c.d }} data-py="-0.12" />
+        ))}
+        {/* drifting planets */}
+        <PixelPlanet size={54} className="absolute left-[58%] top-[12%] planet-drift opacity-80" data-py="-0.06" />
+        <PixelPlanet size={38} className="absolute left-[3%] top-[58%] planet-drift opacity-60" style={{ animationDelay: "-4s" }} data-py="-0.04" />
+        {/* drifting clouds */}
+        <PixelCloud size={90} className="absolute left-[18%] top-[9%] cloud-drift opacity-40" data-py="-0.07" />
+        <PixelCloud size={64} className="absolute left-[74%] top-[52%] cloud-drift-slow opacity-30" data-py="-0.05" />
+      </div>
+  );
+});
+
+
 
 export default function Home() {
   const avatar = usePlayer((s) => s.avatar);
@@ -158,7 +207,7 @@ export default function Home() {
       ]
     : SHOWCASE_STATS;
 
-  const questCards = [
+  const questCards = useMemo(() => [
     {
       n: "01", title: "QUIZ BATTLES", cta: "START BATTLE!", ctaColor: "hsl(var(--pixel-blue))", to: "/quiz",
       desc: ["Challenge yourself with", "AI-generated quizzes.", "Review your mistakes and", "improve your score!"],
@@ -180,9 +229,9 @@ export default function Home() {
       desc: ["Get AI-generated notes", "summarized from the video.", "Edit, save, and make it", "your own."],
       art: <PixelQuill size={78} className="mx-auto float-mid" />,
     },
-  ];
+  ], []);
 
-  const bottomCards = [
+  const bottomCards = useMemo(() => [
     {
       n: "04", title: "PROGRESS TRACKING", cta: "VIEW PROGRESS", ctaColor: "hsl(var(--pixel-green))", to: "/dashboard",
       desc: ["Track your XP, accuracy,", "streaks and time.", "See your growth and", "level up!"],
@@ -193,60 +242,18 @@ export default function Home() {
       desc: ["Earn badges, unlock themes,", "and collect epic rewards.", "The more you learn,", "the more you earn!"],
       art: <PixelChest size={76} className="mx-auto float-mid" />,
     },
-  ];
+  ], []);
 
-  const benefits = [
+  const benefits = useMemo(() => [
     { Art: PixelChip, title: "AI-Powered", desc: ["Smart content from", "any video"] },
     { Art: PixelHeartShield, title: "Fun & Engaging", desc: ["Gamified learning", "that sticks"] },
     { Art: PixelPhone, title: "Study Anywhere", desc: ["Web, mobile,", "anytime"] },
     { Art: PixelLock, title: "Device-Private", desc: ["New study history", "stays on this device"] },
-  ];
+  ], []);
 
   return (
     <div ref={worldRef} className="quest-world relative overflow-hidden bg-background">
-      {/* ---------- LAYER 0/1 : deep field + stars ---------- */}
-      <div className="world-backdrop pointer-events-none absolute inset-0" aria-hidden>
-        <div className="absolute inset-0 bg-deep" data-py="-0.02" />
-        <div className="absolute inset-0 starfield opacity-80" data-py="-0.05" />
-        <div className="absolute inset-0 starfield opacity-40" data-py="-0.1" style={{ scale: "1.7" }} />
-        {[
-          { l: "8%", t: "6%", c: "hsl(var(--pixel-gold))", s: 12, d: "0s" },
-          { l: "22%", t: "14%", c: "hsl(var(--pixel-pink))", s: 9, d: ".5s" },
-          { l: "46%", t: "5%", c: "hsl(var(--cream))", s: 10, d: "1.1s" },
-          { l: "63%", t: "18%", c: "hsl(var(--pixel-blue))", s: 11, d: ".8s" },
-          { l: "86%", t: "10%", c: "hsl(var(--pixel-gold))", s: 9, d: "1.6s" },
-          { l: "5%", t: "38%", c: "hsl(var(--pixel-purple))", s: 10, d: ".3s" },
-          { l: "92%", t: "44%", c: "hsl(var(--pixel-pink))", s: 12, d: "1.3s" },
-          { l: "35%", t: "56%", c: "hsl(var(--cream))", s: 8, d: ".9s" },
-          { l: "72%", t: "66%", c: "hsl(var(--pixel-gold))", s: 10, d: "1.8s" },
-          { l: "14%", t: "72%", c: "hsl(var(--pixel-green))", s: 9, d: ".6s" },
-        ].map((s, i) => (
-          <PixelStar key={i} size={s.s} className="absolute twinkle" style={{ left: s.l, top: s.t, color: s.c, animationDelay: s.d }} />
-        ))}
-        {/* spinning stars */}
-        {[
-          { l: "30%", t: "24%", s: 14, d: "0s" },
-          { l: "78%", t: "30%", s: 12, d: "1.2s" },
-          { l: "55%", t: "48%", s: 10, d: ".7s" },
-        ].map((s, i) => (
-          <PixelStar key={`spin-${i}`} size={s.s} className="absolute star-spin text-pixel-gold" style={{ left: s.l, top: s.t, animationDelay: s.d }} data-py="-0.08" />
-        ))}
-        {/* floating coins */}
-        {[
-          { l: "12%", t: "22%", s: 22, d: "0s", f: "float-mid" },
-          { l: "68%", t: "8%", s: 18, d: ".4s", f: "float-fast" },
-          { l: "40%", t: "70%", s: 20, d: ".9s", f: "float-slow" },
-          { l: "90%", t: "58%", s: 16, d: ".2s", f: "float-mid" },
-        ].map((c, i) => (
-          <PixelCoin key={`coin-${i}`} size={c.s} className={`absolute coin-spin ${c.f}`} style={{ left: c.l, top: c.t, animationDelay: c.d }} data-py="-0.12" />
-        ))}
-        {/* drifting planets */}
-        <PixelPlanet size={54} className="absolute left-[58%] top-[12%] planet-drift opacity-80" data-py="-0.06" />
-        <PixelPlanet size={38} className="absolute left-[3%] top-[58%] planet-drift opacity-60" style={{ animationDelay: "-4s" }} data-py="-0.04" />
-        {/* drifting clouds */}
-        <PixelCloud size={90} className="absolute left-[18%] top-[9%] cloud-drift opacity-40" data-py="-0.07" />
-        <PixelCloud size={64} className="absolute left-[74%] top-[52%] cloud-drift-slow opacity-30" data-py="-0.05" />
-      </div>
+      <WorldBackdrop />
 
       {/* ============ HERO ============ */}
       <section ref={heroRef} className="relative">
@@ -459,13 +466,13 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 mb-7">
             {questCards.map((c, i) => (
-              <QuestCard key={c.n} {...c} index={i} onGo={() => navigate(c.to)} />
+              <QuestCard key={c.n} {...c} index={i} />
             ))}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-7 max-w-[760px] mx-auto">
             {bottomCards.map((c, i) => (
-              <QuestCard key={c.n} {...c} index={i + 3} onGo={() => navigate(c.to)} />
+              <QuestCard key={c.n} {...c} index={i + 3} />
             ))}
           </div>
         </div>
@@ -650,12 +657,13 @@ export default function Home() {
 
 /* ---------- pieces ---------- */
 
-function QuestCard({
-  n, title, desc, cta, ctaColor, ctaInk, art, index, onGo,
+const QuestCard = memo(function QuestCard({
+  n, title, desc, cta, ctaColor, ctaInk, art, index, to,
 }: {
   n: string; title: string; desc: string[]; cta: string; ctaColor: string;
-  ctaInk?: boolean; art: React.ReactNode; index: number; onGo: () => void;
+  ctaInk?: boolean; art: React.ReactNode; index: number; to: string;
 }) {
+  const navigate = useNavigate();
   return (
     <div className={cn("reveal pixel-card relative isolate p-6 pt-8 flex flex-col", `stagger-${index + 1}`)}>
       <div className="pixel-panel absolute inset-0 -z-10" aria-hidden />
@@ -666,7 +674,7 @@ function QuestCard({
         {desc.map((l) => <span key={l} className="block">{l}</span>)}
       </p>
       <Button variant="pixel" size="natural"
-        onClick={onGo}
+        onClick={() => navigate(to)}
         className="pixel-btn mt-auto w-full text-[0.6rem]"
         style={{ backgroundColor: ctaColor, color: ctaInk ? "hsl(var(--ink))" : "hsl(var(--accent-foreground))" }}
       >
@@ -674,7 +682,7 @@ function QuestCard({
       </Button>
     </div>
   );
-}
+});
 
 function QuestionStepper({
   value, onChange, disabled,

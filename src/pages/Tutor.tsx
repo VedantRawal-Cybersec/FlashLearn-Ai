@@ -89,7 +89,12 @@ function LiveWaveform({ active, stream }: { active: boolean; stream: MediaStream
     analyserRef.current = analyser;
 
     const data = new Uint8Array(analyser.frequencyBinCount);
-    const draw = () => {
+    let lastPaint = 0;
+    const draw = (now: number) => {
+      if (document.hidden) { rafRef.current = null; return; }
+      // 30fps is plenty for the visualizer, and halves canvas draw cost.
+      if (now - lastPaint < 33) { rafRef.current = requestAnimationFrame(draw); return; }
+      lastPaint = now;
       const canvas = canvasRef.current;
       if (!canvas) return;
       const c = canvas.getContext("2d");
@@ -112,10 +117,15 @@ function LiveWaveform({ active, stream }: { active: boolean; stream: MediaStream
       }
       rafRef.current = requestAnimationFrame(draw);
     };
-    draw();
+    const onVisibility = () => {
+      if (!document.hidden && !rafRef.current) rafRef.current = requestAnimationFrame(draw);
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    rafRef.current = requestAnimationFrame(draw);
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      document.removeEventListener("visibilitychange", onVisibility);
       ctx.close().catch(() => {});
     };
   }, [active, stream]);
@@ -153,8 +163,10 @@ export default function Tutor() {
   }, [conversationActive]);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, interimTranscript, subtitle]);
+    // Avoid restarting a smooth-scroll animation for every spoken subtitle word.
+    const node = scrollRef.current;
+    if (node) node.scrollTop = node.scrollHeight;
+  }, [messages.length, interimTranscript]);
 
   // Cleanup
   useEffect(() => {

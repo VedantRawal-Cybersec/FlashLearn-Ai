@@ -67,3 +67,27 @@ test("mobile layout keeps content within viewport", async ({ page }, info) => {
   }));
   expect(geometry.scroll).toBeLessThanOrEqual(geometry.viewport + 2);
 });
+
+test("animated world is viewport-bounded and offscreen effects pause", async ({ page }) => {
+  await page.goto("/");
+  const field = page.locator(".world-backdrop");
+  await expect(field).toBeVisible();
+  const height = await field.evaluate(el => el.getBoundingClientRect().height);
+  expect(height).toBeGreaterThan(200);
+  expect(height).toBeLessThanOrEqual(1102);
+
+  // Preserve animated sprite artwork but avoid processing it when not visible.
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect(page.locator(".world-backdrop .starfield").first()).toHaveClass(/motion-paused/);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(page.locator(".world-backdrop .starfield").first()).not.toHaveClass(/motion-paused/);
+});
+
+test("input remains interactive without re-creating quest artwork", async ({ page }) => {
+  await page.goto("/");
+  const field = page.locator(".world-backdrop");
+  const sameBackdrop = await field.evaluate(el => { (el as HTMLElement).dataset.stabilityCheck = "mounted"; return true; });
+  expect(sameBackdrop).toBe(true);
+  await page.getByRole("textbox", { name: /youtube/i }).fill("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+  await expect(field).toHaveAttribute("data-stability-check", "mounted");
+});
