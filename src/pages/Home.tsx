@@ -674,7 +674,7 @@ const QuestCard = memo(function QuestCard({
         {desc.map((l) => <span key={l} className="block">{l}</span>)}
       </p>
       <Button variant="pixel" size="natural"
-        onClick={onGo}
+        onClick={() => navigate(to)}
         className="pixel-btn mt-auto w-full text-[0.6rem]"
         style={{ backgroundColor: ctaColor, color: ctaInk ? "hsl(var(--ink))" : "hsl(var(--accent-foreground))" }}
       >

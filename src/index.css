@@ -460,3 +460,29 @@
 @media (prefers-reduced-motion: reduce) {
   [data-py], [data-px], [data-mx] { translate: none !important; }
 }
+
+/* The duel-floor grid previously animated background-position (a paint on
+   every step). Move an overscanned, identical grid texture as a compositor layer. */
+.battle-floor {
+  animation: none;
+  background-image: none;
+  overflow: hidden;
+  isolation: isolate;
+}
+.battle-floor::before {
+  content: "";
+  position: absolute;
+  inset: -28px 0;
+  background-image:
+    linear-gradient(var(--arena-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--arena-grid) 1px, transparent 1px);
+  background-size: 28px 14px;
+  animation: arena-floor-compositor 5s steps(12) infinite;
+  pointer-events: none;
+}
+@keyframes arena-floor-compositor {
+  to { transform: translate3d(0, 28px, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .battle-floor::before { animation: none; }
+}
