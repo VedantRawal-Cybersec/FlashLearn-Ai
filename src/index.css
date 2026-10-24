@@ -322,7 +322,9 @@
   background: inherit; animation: star-drift 40s steps(40) infinite;
   will-change: transform; pointer-events: none;
 }
-[data-py], [data-px], [data-mx] { will-change: transform; }
+/* Avoid promoting dozens of idle sprites to permanent GPU layers.
+   Parallax uses CSS translate; existing transform animations remain independent. */
+[data-py], [data-px], [data-mx] { will-change: auto; }
 .battle-floor { animation: arena-floor 5s steps(12) infinite; }
 
 /* GPU-friendly extras */
@@ -441,3 +443,20 @@
 
 /* Prevent off-screen sprite animation work without changing any artwork or motion. */
 .motion-paused { animation-play-state: paused !important; }
+
+/* PERFORMANCE: limit animated gradient raster area to the hero viewport.
+   Lower sections retain their original page backgrounds and artwork. */
+.quest-world > .world-backdrop {
+  height: min(125svh, 1100px);
+  overflow: hidden;
+  contain: paint;
+}
+.quest-world .world-backdrop .starfield::before {
+  will-change: transform;
+}
+.motion-paused, .motion-paused::before, .motion-paused::after {
+  animation-play-state: paused !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-py], [data-px], [data-mx] { translate: none !important; }
+}

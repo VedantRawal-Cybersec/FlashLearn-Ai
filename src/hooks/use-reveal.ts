@@ -1,137 +1,159 @@
 import { useEffect } from "react";
 
-/** Adds `.is-visible` to every `.reveal` element when it scrolls into view. */
+/** Reveal once, then stop observing: no React state updates during scroll. */
 export function useReveal(deps: unknown[] = []) {
   useEffect(() => {
-    const els = Array.from(document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)"));
-    if (!els.length) return;
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add("is-visible");
-            io.unobserve(e.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    const elements = Array.from(document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)"));
+    if (!elements.length) return;
+    if (typeof IntersectionObserver === "undefined" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      elements.forEach(element => element.classList.add("is-visible"));
+      return;
+    }
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: "0px 0px -24px 0px" });
+    elements.forEach(element => observer.observe(element));
+    return () => observer.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
 
 /**
- * Scroll parallax without React re-renders.
- * Elements inside `ref` carrying `data-py="<factor>"` get
- * `transform: translate3d(0, scrollY * factor, 0)` written directly to the DOM.
+ * Compositor-friendly scroll parallax. Translate is kept separate from
+ * transform so existing sprite keyframe animations can run unchanged.
+ * Stop scheduling frames when the art is outside the viewport.
  */
 export function useParallax(ref: React.RefObject<HTMLElement>) {
   useEffect(() => {
     const root = ref.current;
-    if (!root) return;
+    if (!root || typeof window === "undefined") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const layers = Array.from(root.querySelectorAll<HTMLElement>("[data-py],[data-px]"));
-    if (!layers.length) return;
-
-    let raf = 0;
-    const apply = () => {
-      raf = 0;
-      const y = window.scrollY;
-      for (const el of layers) {
-        const fy = parseFloat(el.dataset.py || "0");
-        const fx = parseFloat(el.dataset.px || "0");
-        el.style.transform = `translate3d(${(y * fx).toFixed(1)}px, ${(y * fy).toFixed(1)}px, 0)`;
+    const elements = Array.from(root.querySelectorAll<HTMLElement>("[data-py], [data-px]"))
+      .map(el => ({ el, x: Number(el.dataset.px) || 0, y: Number(el.dataset.py) || 0 }));
+    if (!elements.length) return;
+    let frame = 0;
+    let visible = true;
+    const backdrop = root.querySelector<HTMLElement>(".world-backdrop") || root;
+    const paint = () => {
+      frame = 0;
+      if (!visible || document.hidden) return;
+      // Parallax art lives in the first screen(s); don't transform it
+      // thousands of pixels while the learner is scrolling the footer.
+      const distance = Math.min(window.scrollY, 1250);
+      for (const { el, x, y } of elements) {
+        el.style.translate = `${(distance * x).toFixed(1)}px ${(distance * y).toFixed(1)}px`;
       }
     };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(apply);
+    const schedule = () => {
+      if (!frame && visible && !document.hidden) frame = requestAnimationFrame(paint);
     };
-    apply();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const observer = typeof IntersectionObserver !== "undefined"
+      ? new IntersectionObserver(entries => {
+          visible = entries[0]?.isIntersecting ?? false;
+          if (visible) schedule();
+          else if (frame) { cancelAnimationFrame(frame); frame = 0; }
+        }, { rootMargin: "250px 0px" })
+      : null;
+    observer?.observe(backdrop);
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    document.addEventListener("visibilitychange", schedule);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
+      observer?.disconnect();
+      window.removeEventListener("scroll", schedule);
+      document.removeEventListener("visibilitychange", schedule);
+      if (frame) cancelAnimationFrame(frame);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ref]);
 }
 
-/**
- * Pointer parallax without React re-renders.
- * Elements inside `ref` carrying `data-mx="<depth>"` are translated
- * toward the pointer. Desktop only (>= 900px, fine pointer).
- */
+/** Desktop-only pointer parallax, with one layout read per entry/resize. */
 export function useMouseParallax(ref: React.RefObject<HTMLElement>) {
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (window.innerWidth < 900 || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const layers = Array.from(el.querySelectorAll<HTMLElement>("[data-mx]"));
+    const root = ref.current;
+    if (!root) return;
+    const pointer = window.matchMedia("(min-width: 900px) and (hover: hover) and (pointer: fine)");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (!pointer.matches || reducedMotion.matches) return;
+    const layers = Array.from(root.querySelectorAll<HTMLElement>("[data-mx]"))
+      .map(el => ({ el, depth: Number(el.dataset.mx) || 0 }));
     if (!layers.length) return;
-
-    let raf = 0;
-    const target = { x: 0, y: 0 };
+    let frame = 0;
+    let visible = true;
+    let bounds = root.getBoundingClientRect();
+    const goal = { x: 0, y: 0 };
     const current = { x: 0, y: 0 };
-
-    const paint = () => {
-      for (const layer of layers) {
-        const d = parseFloat(layer.dataset.mx || "0");
-        layer.style.transform = `translate3d(${(current.x * d * 2).toFixed(2)}px, ${(current.y * d * 1.6).toFixed(2)}px, 0)`;
+    const updateBounds = () => { bounds = root.getBoundingClientRect(); };
+    const draw = () => {
+      frame = 0;
+      if (!visible || document.hidden) return;
+      current.x += (goal.x - current.x) * 0.15;
+      current.y += (goal.y - current.y) * 0.15;
+      for (const { el, depth } of layers) {
+        el.style.translate = `${(current.x * depth * 2).toFixed(2)}px ${(current.y * depth * 1.6).toFixed(2)}px`;
       }
+      if (Math.abs(goal.x - current.x) + Math.abs(goal.y - current.y) > 0.003)
+        frame = requestAnimationFrame(draw);
     };
-    const loop = () => {
-      raf = 0;
-      current.x += (target.x - current.x) * 0.08;
-      current.y += (target.y - current.y) * 0.08;
-      paint();
-      if (Math.abs(target.x - current.x) + Math.abs(target.y - current.y) > 0.002) {
-        raf = requestAnimationFrame(loop);
-      }
+    const schedule = () => {
+      if (visible && !document.hidden && !frame) frame = requestAnimationFrame(draw);
     };
-    const onMove = (e: MouseEvent) => {
-      const r = el.getBoundingClientRect();
-      target.x = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2));
-      target.y = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height - 0.5) * 2));
-      if (!raf) raf = requestAnimationFrame(loop);
+    const onMove = (event: PointerEvent) => {
+      if (!bounds.width || !bounds.height) return;
+      goal.x = Math.max(-1, Math.min(1, ((event.clientX - bounds.left) / bounds.width - 0.5) * 2));
+      goal.y = Math.max(-1, Math.min(1, ((event.clientY - bounds.top) / bounds.height - 0.5) * 2));
+      schedule();
     };
-    const reset = () => {
-      target.x = 0;
-      target.y = 0;
-      if (!raf) raf = requestAnimationFrame(loop);
-    };
-    el.addEventListener("mousemove", onMove, { passive: true });
-    el.addEventListener("mouseleave", reset);
+    const reset = () => { goal.x = 0; goal.y = 0; schedule(); };
+    const observer = new IntersectionObserver(entries => {
+      visible = entries[0]?.isIntersecting ?? false;
+      if (visible) { updateBounds(); schedule(); }
+      else if (frame) { cancelAnimationFrame(frame); frame = 0; }
+    }, { rootMargin: "150px" });
+    observer.observe(root);
+    root.addEventListener("pointermove", onMove, { passive: true });
+    root.addEventListener("pointerleave", reset);
+    window.addEventListener("resize", updateBounds, { passive: true });
     return () => {
-      el.removeEventListener("mousemove", onMove);
-      el.removeEventListener("mouseleave", reset);
-      cancelAnimationFrame(raf);
+      observer.disconnect();
+      root.removeEventListener("pointermove", onMove);
+      root.removeEventListener("pointerleave", reset);
+      window.removeEventListener("resize", updateBounds);
+      if (frame) cancelAnimationFrame(frame);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ref]);
 }
 
-/** Keep the original decorative animations, but suspend those outside the viewport. */
+/** Preserve visible motion; pause only offscreen/hidden animations. */
 export function usePauseOffscreenMotion() {
   useEffect(() => {
-    if (typeof IntersectionObserver === "undefined") return;
-    const els = Array.from(document.querySelectorAll<HTMLElement>(
-      ".float-slow, .float-mid, .float-fast, .twinkle, .coin-spin, .star-spin, .planet-drift, .cloud-drift, .cloud-drift-slow, .bob, .wiggle"
-    ));
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => e.target.classList.toggle("motion-paused", !e.isIntersecting || document.hidden));
-    }, { rootMargin: "100px" });
+    const selector = [
+      ".float-slow", ".float-mid", ".float-fast", ".twinkle",
+      ".coin-spin", ".star-spin", ".planet-drift", ".cloud-drift",
+      ".cloud-drift-slow", ".bob", ".wiggle", ".blink", ".glow-pulse",
+      ".starfield"
+    ].join(", ");
+    const elements = Array.from(document.querySelectorAll<HTMLElement>(selector));
+    if (!elements.length || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries)
+        entry.target.classList.toggle("motion-paused", !entry.isIntersecting || document.hidden);
+    }, { rootMargin: "80px" });
     const onVisibility = () => {
-      if (document.hidden) els.forEach(el => el.classList.add("motion-paused"));
-      else els.forEach(el => { el.classList.remove("motion-paused"); io.unobserve(el); io.observe(el); });
+      if (document.hidden) elements.forEach(el => el.classList.add("motion-paused"));
+      else elements.forEach(el => { observer.unobserve(el); observer.observe(el); });
     };
-    els.forEach(el => io.observe(el));
+    elements.forEach(el => observer.observe(el));
     document.addEventListener("visibilitychange", onVisibility);
-    return () => { io.disconnect(); document.removeEventListener("visibilitychange", onVisibility); };
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
+      elements.forEach(el => el.classList.remove("motion-paused"));
+    };
   }, []);
 }

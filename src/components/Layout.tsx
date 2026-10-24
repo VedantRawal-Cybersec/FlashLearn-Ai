@@ -3,7 +3,7 @@ import { BrainCircuit, Timer, LayoutDashboard, Layers, HelpCircle, Map, MessageC
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
 import { useAppStore } from "@/lib/store";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PixelBolt } from "@/components/PixelArt";
 import PlayerAvatar from "@/components/PlayerAvatar";
@@ -42,18 +42,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [scrolled, setScrolled] = useState(false);
+  const scrollFrame = useRef(0);
   useEffect(() => {
-    const update = () => setScrolled(window.scrollY > 60);
+    const update = () => {
+      scrollFrame.current = 0;
+      const isScrolled = window.scrollY > 60;
+      setScrolled(previous => previous === isScrolled ? previous : isScrolled);
+    };
+    const onScroll = () => {
+      if (!scrollFrame.current) scrollFrame.current = requestAnimationFrame(update);
+    };
     update();
-    window.addEventListener("scroll", update, { passive: true });
-    if (!document.getElementById("pixel-fonts")) {
-      const link = document.createElement("link");
-      link.id = "pixel-fonts";
-      link.rel = "stylesheet";
-      link.href = "https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&display=swap";
-      document.head.appendChild(link);
-    }
-    return () => window.removeEventListener("scroll", update);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (scrollFrame.current) cancelAnimationFrame(scrollFrame.current);
+    };
   }, []);
   useEffect(() => setMobileMenuOpen(false), [location.pathname]);
 
