@@ -99,7 +99,7 @@ const flashcards: Record<SampleTrack, [string, string][]> = {
  * Hand-authored, freely usable demonstration content.
  * Does not call AI, claim official past-paper status, or access the student's account.
  */
-export function createSampleSession(track: SampleTrack, id = crypto.randomUUID()): StudySession {
+export function createSampleSession(track: SampleTrack, id: string = crypto.randomUUID()): StudySession {
   const isJee = track === "jee-main";
   const selected = isJee ? physicsQuestions : biologyQuestions;
   const quizQuestions: QuizQuestion[] = selected.map((q, i) => ({
