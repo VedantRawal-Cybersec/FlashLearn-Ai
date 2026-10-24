@@ -97,15 +97,20 @@ test("JEE and NEET sample quests work instantly without AI or login", async ({ p
   page.on("request", req => { if (req.url().includes("/functions/v1/")) apiCalls.push(req.url()); });
   await page.goto("/");
   await page.getByRole("button", { name: "Try JEE Physics demo" }).click();
-  await expect(page.getByText("SAMPLE · JEE Main Physics")).toBeVisible();
-  await expect(page.getByText("A body starts from rest and accelerates uniformly")).toBeVisible();
-  await page.getByRole("button", { name: /9 m/ }).click();
-  await expect(page.getByText(/½ × 2 × 3²/)).toBeVisible();
+  await expect(page).toHaveURL(/\/quiz$/);
+  await expect(page.getByText(/A body starts from rest and accelerates uniformly/)).toBeVisible();
+  await page.getByRole("button", { name: "9 m" }).click();
+  await expect(page.getByText(/s = ut \+ ½at²/)).toBeVisible();
+  await expect.poll(async () => page.evaluate(() => {
+    const rows = JSON.parse(localStorage.getItem("flashlearn-private-sessions-v1") || "[]");
+    return rows.find((r: { title: string }) => r.title === "SAMPLE · JEE Main Physics")?.quizQuestions?.[0]?.userAnswer;
+  })).toBe(2);
   await page.reload();
-  await expect(page.getByText("SAMPLE · JEE Main Physics")).toBeVisible();
+  await expect(page.getByText(/A body starts from rest and accelerates uniformly/)).toBeVisible();
   expect(apiCalls).toHaveLength(0);
   await page.goto("/");
   await page.getByRole("button", { name: "Try NEET Biology demo" }).click();
-  await expect(page.getByText("SAMPLE · NEET Biology")).toBeVisible();
+  await expect(page).toHaveURL(/\/quiz$/);
+  await expect(page.getByText(/Which cell structures translate messenger RNA/)).toBeVisible();
   expect(apiCalls).toHaveLength(0);
 });
