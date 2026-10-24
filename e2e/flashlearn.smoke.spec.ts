@@ -91,3 +91,21 @@ test("input remains interactive without re-creating quest artwork", async ({ pag
   await page.getByRole("textbox", { name: /youtube/i }).fill("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
   await expect(field).toHaveAttribute("data-stability-check", "mounted");
 });
+
+test("JEE and NEET sample quests work instantly without AI or login", async ({ page }) => {
+  const apiCalls: string[] = [];
+  page.on("request", req => { if (req.url().includes("/functions/v1/")) apiCalls.push(req.url()); });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try JEE Physics demo" }).click();
+  await expect(page.getByText("SAMPLE · JEE Main Physics")).toBeVisible();
+  await expect(page.getByText("A body starts from rest and accelerates uniformly")).toBeVisible();
+  await page.getByRole("button", { name: /9 m/ }).click();
+  await expect(page.getByText(/½ × 2 × 3²/)).toBeVisible();
+  await page.reload();
+  await expect(page.getByText("SAMPLE · JEE Main Physics")).toBeVisible();
+  expect(apiCalls).toHaveLength(0);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try NEET Biology demo" }).click();
+  await expect(page.getByText("SAMPLE · NEET Biology")).toBeVisible();
+  expect(apiCalls).toHaveLength(0);
+});
