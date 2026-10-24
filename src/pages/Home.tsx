@@ -11,6 +11,7 @@ import PlayerAvatar from "@/components/PlayerAvatar";
 import StudyOptions from "@/components/StudyOptions";
 import { DEFAULT_STUDY_OPTIONS } from "../../supabase/functions/_shared/study-options";
 import { usePlayer } from "@/lib/player";
+import { createSampleSession, type SampleTrack } from "@/lib/demo-session";
 import {
   PixelStar, PixelCoin, PixelBolt, PixelCloud, PixelPlanet, PixelChest, PixelSlime,
   PixelWizard, PixelScroll, PixelController, PixelBadge, PixelTerrain,
@@ -100,6 +101,12 @@ export default function Home() {
   useEffect(() => {
     if (!sessionsLoaded) loadSessions();
   }, [sessionsLoaded, loadSessions]);
+
+  const openSampleQuest = (track: SampleTrack) => {
+    addSession(createSampleSession(track));
+    toast({ title: "Sample quest ready", description: "Five original, manually checked demonstration questions. No AI request or account required." });
+    navigate("/quiz");
+  };
 
   const handleYouTubeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -289,6 +296,18 @@ export default function Home() {
               <div className="flex flex-wrap gap-3 mt-5">
                 <Button variant="outline" onClick={() => navigate("/battle")}><PixelSword size={20} />1v1 AI Arena</Button>
                 <Button variant="ghost" onClick={() => navigate("/avatar")}><PlayerAvatar avatar={avatar} size={28} />My Hero</Button>
+              </div>
+              <div className="mt-5 space-y-2">
+                <p className="pixel-body text-sm text-cream/85">Try before uploading a lesson</p>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="outline" className="pixel-body text-sm" disabled={submitting} onClick={() => openSampleQuest("jee-main")}>
+                    Try JEE Physics demo
+                  </Button>
+                  <Button type="button" variant="outline" className="pixel-body text-sm" disabled={submitting} onClick={() => openSampleQuest("neet")}>
+                    Try NEET Biology demo
+                  </Button>
+                </div>
+                <p className="pixel-body text-xs text-cream/60">Original hand-authored practice · No signup or AI credits · Not official PYQs</p>
               </div>
               <div className="relative h-[112px] mt-4 hidden md:block" aria-hidden>
                 <PixelWizard size={104} className="absolute left-0 bottom-0 float-slow" data-mx="8" />
