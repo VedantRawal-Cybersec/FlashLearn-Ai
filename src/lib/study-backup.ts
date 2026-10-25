@@ -18,14 +18,14 @@ export function validateStudyBackup(raw: unknown): StudySession[] {
       if (!object(c) || !text(c.id,100) || !text(c.front,10000) || !text(c.back,15000) ||
           (c.difficulty !== null && !["easy","medium","hard"].includes(c.difficulty as string)) ||
           (c.review !== undefined && (!object(c.review) || !text(c.review.dueAt,100) || !text(c.review.lastReviewedAt,100) ||
-             !Number.isFinite(c.review.intervalDays) || !Number.isFinite(c.review.repetitions))))
+             typeof c.review.intervalDays !== "number" || !Number.isFinite(c.review.intervalDays) || typeof c.review.repetitions !== "number" || !Number.isFinite(c.review.repetitions))))
         throw new Error("Backup contains an invalid flashcard.");
     }
     for (const q of session.quizQuestions) {
       if (!object(q) || !text(q.id,100) || !text(q.question,10000) ||
         !Array.isArray(q.options) || q.options.length !== 4 || !q.options.every((o:unknown)=>text(o,5000)) ||
-        !Number.isInteger(q.correctIndex) || (q.correctIndex as number) < 0 || (q.correctIndex as number) > 3 ||
-        (q.userAnswer !== undefined && (!Number.isInteger(q.userAnswer) || (q.userAnswer as number)<0 || (q.userAnswer as number)>3)))
+        typeof q.correctIndex !== "number" || !Number.isInteger(q.correctIndex) || (q.correctIndex as number) < 0 || (q.correctIndex as number) > 3 ||
+        (q.userAnswer !== undefined && (typeof q.userAnswer !== "number" || !Number.isInteger(q.userAnswer) || (q.userAnswer as number)<0 || (q.userAnswer as number)>3)))
         throw new Error("Backup contains an invalid question.");
     }
     for (const item of session.roadmap) {

@@ -155,7 +155,7 @@ test("study backup import preserves existing sessions and restores new ones", as
   await page.getByLabel("Import study backup").setInputFiles({
     name:"flash-learn-study-backup.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(backup)),
   });
-  await expect(page.getByRole("status").getByText("Restored 1 study sessions. Existing sessions were kept.")).toBeVisible();
+  await expect(page.getByText("Restored 1 study sessions. Existing sessions were kept.")).toBeVisible();
   await page.reload();
   await expect(page.getByText("Imported Chemistry")).toBeVisible();
 });
