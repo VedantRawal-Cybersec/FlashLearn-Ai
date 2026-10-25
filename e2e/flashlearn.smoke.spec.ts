@@ -137,7 +137,7 @@ test("timed drill mistakes survive refresh in Mistake Book", async ({ page }) =>
   await page.goto("/mistakes");
   await expect(page.getByRole("heading", { name: "Mistake Book" })).toBeVisible();
   await expect(page.getByText("5 distinct questions to revisit")).toBeVisible();
-  await expect(page.getByText("Lysosomes", { exact: true })).toBeVisible();
+  await expect(page.getByText("Your answer: Lysosomes")).toBeVisible();
   await page.reload();
   await expect(page.getByText("5 distinct questions to revisit")).toBeVisible();
 });
