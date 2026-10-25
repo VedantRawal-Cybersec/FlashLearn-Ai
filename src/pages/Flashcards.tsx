@@ -4,11 +4,12 @@ import { usePlayer } from "@/lib/player";
 import { XP } from "@/lib/gamification";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 export default function Flashcards() {
   const session = useAppStore((s) => s.currentSession);
-  const updateDifficulty = useAppStore((s) => s.updateFlashcardDifficulty);
+  const reviewFlashcard = useAppStore((s) => s.reviewFlashcard);
   const awardXp = usePlayer((s) => s.awardXp);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -38,14 +39,14 @@ export default function Flashcards() {
 
   const handleDifficulty = (d: 'easy' | 'medium' | 'hard') => {
     if (card.difficulty === null) awardXp(XP.flashcardReview, "cards");
-    updateDifficulty(card.id, d);
+    reviewFlashcard(session.id, card.id, d === "hard" ? "again" : d === "medium" ? "good" : "easy");
     if (currentIndex < total - 1) goNext();
   };
 
   return (
     <div className="container max-w-2xl py-10 px-4 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Flashcards</h1>
+        <div><h1 className="text-2xl font-bold text-foreground">Flashcards</h1><Link className="text-primary text-sm underline" to="/review">Review cards due today</Link></div>
         <span className="text-sm text-muted-foreground font-medium">
           {currentIndex + 1} / {total}
         </span>
@@ -103,7 +104,7 @@ export default function Flashcards() {
                 card.difficulty === d && d === "hard" && "bg-destructive hover:bg-destructive/90"
               )}
             >
-              {d}
+              {d === "hard" ? "Again (10m)" : d === "medium" ? "Good (1d+)" : "Easy (4d+)"}
             </Button>
           ))}
         </div>

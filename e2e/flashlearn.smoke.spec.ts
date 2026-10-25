@@ -114,3 +114,48 @@ test("JEE and NEET sample quests work instantly without AI or login", async ({ p
   await expect(page.getByText(/Which cell structures translate messenger RNA/)).toBeVisible();
   expect(apiCalls).toHaveLength(0);
 });
+
+test("daily review queue schedules cards and retains due date after refresh", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try NEET Biology demo" }).click();
+  await page.goto("/review");
+  await expect(page.getByRole("heading", { name: "Daily Review Queue" })).toBeVisible();
+  await expect(page.getByText("5 cards due now")).toBeVisible();
+  await page.getByRole("button", { name: "Show answer" }).click();
+  await page.getByRole("button", { name: "Good" }).click();
+  await expect(page.getByText("4 cards due now")).toBeVisible();
+  await page.reload();
+  await expect(page.getByText("4 cards due now")).toBeVisible();
+});
+test("timed drill mistakes survive refresh in Mistake Book", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try NEET Biology demo" }).click();
+  await page.goto("/drill");
+  await page.getByRole("button", { name: "Start drill" }).click();
+  await page.getByRole("button", { name: "A. Lysosomes" }).click();
+  await page.getByRole("button", { name: "Finish and grade answers" }).click();
+  await page.goto("/mistakes");
+  await expect(page.getByRole("heading", { name: "Mistake Book" })).toBeVisible();
+  await expect(page.getByText("5 distinct questions to revisit")).toBeVisible();
+  await expect(page.getByText("Your answer: Lysosomes")).toBeVisible();
+  await page.reload();
+  await expect(page.getByText("5 distinct questions to revisit")).toBeVisible();
+});
+
+test("study backup import preserves existing sessions and restores new ones", async ({ page }) => {
+  await page.goto("/coach");
+  const backup = {
+    version: 1,
+    sessions: [{
+      id:"imported-quest",title:"Imported Chemistry",createdAt:"2026-10-25T00:00:00Z",videoUrl:"",
+      flashcards:[{id:"c1",front:"Atom",back:"Smallest basic unit",difficulty:null}],
+      quizQuestions:[],roadmap:[],
+    }],
+  };
+  await page.getByLabel("Import study backup").setInputFiles({
+    name:"flash-learn-study-backup.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(backup)),
+  });
+  await expect(page.getByText("Restored 1 study sessions. Existing sessions were kept.")).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Imported Chemistry" })).toBeVisible();
+});
