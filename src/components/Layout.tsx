@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { BrainCircuit, Timer, CalendarClock, ClipboardList, LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, BookOpen, Sun, Moon, Zap, AlertTriangle, Target, TrendingDown, Network, Menu, X, Swords, UserRound, Trophy } from "lucide-react";
+import { BrainCircuit, Timer, CalendarClock, ClipboardList, Atom, Compass, HeartPulse, CalendarDays, BookCheck, PencilRuler, LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, BookOpen, Sun, Moon, Zap, AlertTriangle, Target, TrendingDown, Network, Menu, X, Swords, UserRound, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
 import { useAppStore } from "@/lib/store";
@@ -16,6 +16,12 @@ const navItems = [
   { path: "/rewards", label: "Rewards", icon: Trophy },
   { path: "/dashboard", label: "Progress", icon: LayoutDashboard },
   { path: "/coach", label: "Study Coach", icon: BrainCircuit },
+  { path: "/brain", label: "Exam Brain", icon: Compass },
+  { path: "/rescue", label: "Rescue Mode", icon: HeartPulse },
+  { path: "/planner", label: "Study Planner", icon: CalendarDays },
+  { path: "/pattern-lab", label: "Exam Pattern Lab", icon: BookCheck },
+  { path: "/labs", label: "Concept Labs", icon: Atom },
+  { path: "/clinic", label: "Step Clinic", icon: PencilRuler },
   { path: "/drill", label: "Exam Drill", icon: Timer },
   { path: "/review", label: "Due Reviews", icon: CalendarClock },
   { path: "/mistakes", label: "Mistake Book", icon: ClipboardList },
@@ -64,7 +70,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => setMobileMenuOpen(false), [location.pathname]);
 
   const renderLink = (item: typeof navItems[number]) => {
-    const disabled = !["/", "/avatar", "/battle", "/rewards", "/coach"].includes(item.path) && !session;
+    const disabled = !["/", "/avatar", "/battle", "/rewards", "/coach", "/brain", "/rescue", "/planner", "/pattern-lab", "/labs", "/clinic"].includes(item.path) && !session;
     const active = location.pathname === item.path;
     const Icon = item.icon;
     return (

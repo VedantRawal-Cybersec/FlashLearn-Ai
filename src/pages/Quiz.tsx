@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAppStore } from "@/lib/store";
 import { usePlayer } from "@/lib/player";
 import { XP } from "@/lib/gamification";
@@ -79,6 +80,7 @@ export default function Quiz() {
             );
           })}
         </div>
+        <div className="flex gap-3 flex-wrap"><Link to="/rescue" className="pixel-btn">Start Rescue Mode</Link><Link to="/brain" className="pixel-btn">Knowledge DNA</Link></div>
         <Button className="mt-6 hover-scale" onClick={() => { resetQuizAnswers(); setShowResults(false); setCurrentIndex(0); setAnimKey(k => k + 1); }}>
           Retry Quiz
         </Button>

@@ -48,6 +48,7 @@ export interface StudySession {
   createdAt: string;
   generation?: GenerationInfo;
   quizAttempts?: QuizAttempt[];
+  questionReports?: { id: string; questionId: string; reason: string; createdAt: string }[];
 }
 
 interface AppState {
@@ -64,6 +65,8 @@ interface AppState {
   updateFlashcardDifficulty: (cardId: string, difficulty: 'easy' | 'medium' | 'hard') => void;
   reviewFlashcard: (sessionId: string, cardId: string, rating: ReviewRating) => void;
   finishQuizAttempt: () => void;
+  recordPracticeAttempt: (questions: QuizQuestion[]) => void;
+  reportQuestion: (sessionId: string, questionId: string, reason: string) => boolean;
   importBackupData: (data: unknown) => number;
   answerQuizQuestion: (questionId: string, answerIndex: number) => void;
   toggleRoadmapItem: (itemId: string) => void;
@@ -206,6 +209,25 @@ export const useAppStore = create<AppState>((set, get) => ({
       currentSession: s.currentSession?.id === sessionId ? updated : s.currentSession,
       sessions: s.sessions.map(item => item.id === sessionId ? updated : item),
     }));
+    void saveSessionToDB(updated);
+  },
+
+  reportQuestion: (sessionId, questionId, reason) => {
+    const previous = get().sessions.find(s=>s.id===sessionId) || (get().currentSession?.id===sessionId?get().currentSession:null);
+    if (!previous || !previous.quizQuestions.some(q => q.id === questionId) || reason.trim().length < 5 || reason.length > 500) return false;
+    const item = { id: crypto.randomUUID(), questionId, reason: reason.trim(), createdAt: new Date().toISOString() };
+    const updated: StudySession = { ...previous, questionReports: [...(previous.questionReports || []), item] };
+    set(state => ({currentSession:state.currentSession?.id===sessionId?updated:state.currentSession,sessions:state.sessions.map(s => s.id === updated.id ? updated : s)}));
+    void saveSessionToDB(updated);
+    return true; // local-only; never imply a report was submitted to staff.
+  },
+
+  recordPracticeAttempt: (questions) => {
+    const previous = get().currentSession;
+    if (!previous || questions.length === 0) return;
+    const entry = buildQuizAttempt(questions,"drill",crypto.randomUUID());
+    const updated: StudySession = { ...previous, quizAttempts: [...(previous.quizAttempts || []),entry] };
+    set(state => ({currentSession:updated,sessions:state.sessions.map(s => s.id===updated.id ? updated : s)}));
     void saveSessionToDB(updated);
   },
 

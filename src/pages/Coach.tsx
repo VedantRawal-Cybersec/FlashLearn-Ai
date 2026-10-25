@@ -79,7 +79,7 @@ export default function Coach() {
         <p className="text-sm text-muted-foreground">Your study history is stored on this browser until secure account synchronization is enabled. Keep your backup file private; it contains your learning records.</p>
       </div>
     </header>
-    <div className="flex flex-wrap gap-3"><Link to="/review" className="pixel-btn">Review due cards ({dueCards})</Link><Link to="/mistakes" className="pixel-btn">Mistake Book</Link></div>
+    <div className="flex flex-wrap gap-3"><Link to="/brain" className="pixel-btn">Exam Brain</Link><Link to="/rescue" className="pixel-btn">Rescue Mission</Link><Link to="/planner" className="pixel-btn">Exam-Day Planner</Link><Link to="/pattern-lab" className="pixel-btn">Exam Pattern Lab</Link><Link to="/review" className="pixel-btn">Review due cards ({dueCards})</Link><Link to="/mistakes" className="pixel-btn">Mistake Book</Link></div>
     <div className="grid sm:grid-cols-3 gap-4">
       <div className="pixel-panel p-5"><p>Questions attempted</p><strong className="text-3xl">{total}</strong></div>
       <div className="pixel-panel p-5"><p>Correct answers</p><strong className="text-3xl">{correct}</strong></div>
