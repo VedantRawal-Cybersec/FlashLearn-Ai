@@ -157,5 +157,5 @@ test("study backup import preserves existing sessions and restores new ones", as
   });
   await expect(page.getByText("Restored 1 study sessions. Existing sessions were kept.")).toBeVisible();
   await page.reload();
-  await expect(page.getByText("Imported Chemistry")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Imported Chemistry" })).toBeVisible();
 });
