@@ -10,6 +10,12 @@ const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Coach = lazy(() => import("@/pages/Coach"));
 const ExamDrill = lazy(() => import("@/pages/ExamDrill"));
 const ReviewQueue = lazy(() => import("@/pages/ReviewQueue"));
+const ExamBrain = lazy(() => import("@/pages/ExamBrain"));
+const RescueMode = lazy(() => import("@/pages/RescueMode"));
+const ExamPlanner = lazy(() => import("@/pages/ExamPlanner"));
+const ConceptLab = lazy(() => import("@/pages/ConceptLab"));
+const StepClinic = lazy(() => import("@/pages/StepClinic"));
+const ExamPatternLab = lazy(() => import("@/pages/ExamPatternLab"));
 const MistakeBook = lazy(() => import("@/pages/MistakeBook"));
 const Flashcards = lazy(() => import("@/pages/Flashcards"));
 const Quiz = lazy(() => import("@/pages/Quiz"));
@@ -44,6 +50,12 @@ const App = () => (
             <Route path="/coach" element={<Coach />} />
             <Route path="/drill" element={<ExamDrill />} />
             <Route path="/review" element={<ReviewQueue />} />
+            <Route path="/brain" element={<ExamBrain />} />
+            <Route path="/rescue" element={<RescueMode />} />
+            <Route path="/planner" element={<ExamPlanner />} />
+            <Route path="/labs" element={<ConceptLab />} />
+            <Route path="/clinic" element={<StepClinic />} />
+            <Route path="/pattern-lab" element={<ExamPatternLab />} />
             <Route path="/mistakes" element={<MistakeBook />} />
             <Route path="/flashcards" element={<Flashcards />} />
             <Route path="/quiz" element={<Quiz />} />
