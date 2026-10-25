@@ -141,3 +141,21 @@ test("timed drill mistakes survive refresh in Mistake Book", async ({ page }) =>
   await page.reload();
   await expect(page.getByText("5 distinct questions to revisit")).toBeVisible();
 });
+
+test("study backup import preserves existing sessions and restores new ones", async ({ page }) => {
+  await page.goto("/coach");
+  const backup = {
+    version: 1,
+    sessions: [{
+      id:"imported-quest",title:"Imported Chemistry",createdAt:"2026-10-25T00:00:00Z",videoUrl:"",
+      flashcards:[{id:"c1",front:"Atom",back:"Smallest basic unit",difficulty:null}],
+      quizQuestions:[],roadmap:[],
+    }],
+  };
+  await page.getByLabel("Import study backup").setInputFiles({
+    name:"flash-learn-study-backup.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(backup)),
+  });
+  await expect(page.getByRole("status").getByText("Restored 1 study sessions. Existing sessions were kept.")).toBeVisible();
+  await page.reload();
+  await expect(page.getByText("Imported Chemistry")).toBeVisible();
+});

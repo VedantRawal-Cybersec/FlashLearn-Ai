@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { isReviewDue } from "@/lib/spaced-repetition";
 import { BrainCircuit, CalendarDays, Target } from "lucide-react";
@@ -9,6 +9,8 @@ export default function Coach() {
   const current = useAppStore(s => s.currentSession);
   const loaded = useAppStore(s => s.sessionsLoaded);
   const load = useAppStore(s => s.loadSessions);
+  const importBackupData = useAppStore(s => s.importBackupData);
+  const [backupMessage, setBackupMessage] = useState("");
   useEffect(() => { if (!loaded) void load(); }, [loaded, load]);
   const topics = useMemo(() => {
     const source = current ? [current, ...sessions.filter(s => s.id !== current.id)] : sessions;
@@ -37,6 +39,20 @@ export default function Coach() {
   const history = source.flatMap(s => (s.quizAttempts || []).map(a => ({ ...a, session: s.title }))).sort((a,b) => b.completedAt.localeCompare(a.completedAt));
   const total = topics.reduce((n,t)=>n+t.attempted,0);
   const correct = topics.reduce((n,t)=>n+t.correct,0);
+  const importBackup = async (file?: File) => {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024 || file.size === 0) {
+      setBackupMessage("Backup must be a non-empty JSON file under 2 MB.");
+      return;
+    }
+    try {
+      const payload = JSON.parse(await file.text());
+      const count = importBackupData(payload);
+      setBackupMessage(count ? `Restored ${count} study sessions. Existing sessions were kept.` : "This backup has no new sessions to restore.");
+    } catch (err) {
+      setBackupMessage(err instanceof Error ? err.message : "This backup could not be restored.");
+    }
+  };
   const exportBackup = () => {
     const all = current ? [current, ...sessions.filter(s => s.id !== current.id)] : sessions;
     const file = new Blob([JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), sessions: all }, null, 2)], { type: "application/json" });
@@ -55,6 +71,11 @@ export default function Coach() {
       <p className="text-muted-foreground">A revision plan from your attempted questions and rated flashcards, not an unverified AI mastery estimate.</p>
       <div className="space-y-2">
         <button type="button" className="pixel-btn" onClick={exportBackup}>Export my study data</button>
+        <label className="inline-flex items-center gap-2 cursor-pointer text-primary underline px-3">
+          Import study backup
+          <input type="file" aria-label="Import study backup" accept=".json,application/json" className="sr-only" onChange={e => { void importBackup(e.target.files?.[0]); e.target.value = ""; }} />
+        </label>
+        {backupMessage && <p role="status" className="text-sm font-medium">{backupMessage}</p>}
         <p className="text-sm text-muted-foreground">Your study history is stored on this browser until secure account synchronization is enabled. Keep your backup file private; it contains your learning records.</p>
       </div>
     </header>

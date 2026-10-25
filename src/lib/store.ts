@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { StudyOptions } from '../../supabase/functions/_shared/study-options';
 import { scheduleReview, type ReviewSchedule, type ReviewRating } from "@/lib/spaced-repetition";
 import { buildQuizAttempt, type QuizAttempt } from "@/lib/quiz-history";
+import { validateStudyBackup } from "@/lib/study-backup";
 
 export interface GenerationInfo {
   options: StudyOptions;
@@ -63,6 +64,7 @@ interface AppState {
   updateFlashcardDifficulty: (cardId: string, difficulty: 'easy' | 'medium' | 'hard') => void;
   reviewFlashcard: (sessionId: string, cardId: string, rating: ReviewRating) => void;
   finishQuizAttempt: () => void;
+  importBackupData: (data: unknown) => number;
   answerQuizQuestion: (questionId: string, answerIndex: number) => void;
   toggleRoadmapItem: (itemId: string) => void;
   resetQuizAnswers: () => void;
@@ -101,9 +103,9 @@ function readPrivateSessions(): StudySession[] {
       : [];
   } catch (e) { console.error("Could not read local study sessions", e); return []; }
 }
-function writePrivateSessions(sessions: StudySession[]): void {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions)); }
-  catch (e) { console.error("Local session storage is full or unavailable. Export or delete old sessions.", e); }
+function writePrivateSessions(sessions: StudySession[]): boolean {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions)); return true; }
+  catch (e) { console.error("Local session storage is full or unavailable. Export or delete old sessions.", e); return false; }
 }
 async function saveSessionToDB(session: StudySession) {
   const pending = saveTimers.get(session.id);
@@ -146,6 +148,21 @@ export const useAppStore = create<AppState>((set, get) => ({
       try { localStorage.setItem(SELECTED_KEY, id); } catch {}
       set({ currentSession: session });
     }
+  },
+
+  importBackupData: (data) => {
+    const imported = validateStudyBackup(data);
+    const existing = readPrivateSessions();
+    const known = new Set(existing.map(s => s.id));
+    const added = imported.filter(s => !known.has(s.id));
+    if (added.length === 0) return 0;
+    const merged = [...added, ...existing];
+    if (!writePrivateSessions(merged)) throw new Error("Unable to save this backup. Browser storage may be full.");
+    set(state => ({
+      sessions: merged, sessionsLoaded: true,
+      currentSession: state.currentSession || merged[0] || null,
+    }));
+    return added.length;
   },
 
   deleteSession: async (id) => {
