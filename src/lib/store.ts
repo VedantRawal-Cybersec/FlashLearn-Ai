@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import type { StudyOptions } from '../../supabase/functions/_shared/study-options';
+import { scheduleReview, type ReviewSchedule, type ReviewRating } from "@/lib/spaced-repetition";
+import { buildQuizAttempt, type QuizAttempt } from "@/lib/quiz-history";
 
 export interface GenerationInfo {
   options: StudyOptions;
@@ -13,6 +15,7 @@ export interface Flashcard {
   front: string;
   back: string;
   difficulty: 'easy' | 'medium' | 'hard' | null;
+  review?: ReviewSchedule;
 }
 
 export interface QuizQuestion {
@@ -43,6 +46,7 @@ export interface StudySession {
   roadmap: RoadmapItem[];
   createdAt: string;
   generation?: GenerationInfo;
+  quizAttempts?: QuizAttempt[];
 }
 
 interface AppState {
@@ -57,6 +61,8 @@ interface AppState {
   selectSession: (id: string) => void;
   deleteSession: (id: string) => Promise<void>;
   updateFlashcardDifficulty: (cardId: string, difficulty: 'easy' | 'medium' | 'hard') => void;
+  reviewFlashcard: (sessionId: string, cardId: string, rating: ReviewRating) => void;
+  finishQuizAttempt: () => void;
   answerQuizQuestion: (questionId: string, answerIndex: number) => void;
   toggleRoadmapItem: (itemId: string) => void;
   resetQuizAnswers: () => void;
@@ -100,6 +106,8 @@ function writePrivateSessions(sessions: StudySession[]): void {
   catch (e) { console.error("Local session storage is full or unavailable. Export or delete old sessions.", e); }
 }
 async function saveSessionToDB(session: StudySession) {
+  const pending = saveTimers.get(session.id);
+  if (pending) { clearTimeout(pending); saveTimers.delete(session.id); }
   // The legacy shared backend has no owner-scoped RLS; do not send NEW student data there.
   const sessions = readPrivateSessions();
   writePrivateSessions([session, ...sessions.filter(s => s.id !== session.id)]);
@@ -164,6 +172,35 @@ export const useAppStore = create<AppState>((set, get) => ({
       return { currentSession: updated, sessions: state.sessions.map(s => s.id === updated.id ? updated : s) };
     }),
 
+
+  reviewFlashcard: (sessionId, cardId, rating) => {
+    const state = get();
+    const original = state.sessions.find(s => s.id === sessionId) || (state.currentSession?.id === sessionId ? state.currentSession : null);
+    if (!original) return;
+    const updated: StudySession = {
+      ...original,
+      flashcards: original.flashcards.map(card => card.id === cardId ? {
+        ...card,
+        review: scheduleReview(card.review, rating),
+        difficulty: rating === "again" || rating === "hard" ? "hard" : rating === "good" ? "medium" : "easy",
+      } : card),
+    };
+    set(s => ({
+      currentSession: s.currentSession?.id === sessionId ? updated : s.currentSession,
+      sessions: s.sessions.map(item => item.id === sessionId ? updated : item),
+    }));
+    void saveSessionToDB(updated);
+  },
+
+  finishQuizAttempt: () => {
+    const previous = get().currentSession;
+    if (!previous) return;
+    const entry = buildQuizAttempt(previous.quizQuestions, "quiz", crypto.randomUUID());
+    const updated = { ...previous, quizAttempts: [...(previous.quizAttempts || []), entry] };
+    set(s => ({ currentSession: updated, sessions: s.sessions.map(item => item.id === updated.id ? updated : item) }));
+    void saveSessionToDB(updated);
+  },
+
   answerQuizQuestion: (questionId, answerIndex) =>
     set((state) => {
       if (!state.currentSession) return state;
@@ -180,10 +217,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   submitQuizAnswers: (answers) => {
     const previous = get().currentSession;
     if (!previous) return;
-    const updated: StudySession = { ...previous, quizQuestions: previous.quizQuestions.map(q => {
+    const answered = previous.quizQuestions.map(q => {
       const { userAnswer, ...rest } = q;
       return answers[q.id] === undefined ? rest : { ...rest, userAnswer: answers[q.id] };
-    }) };
+    });
+    const entry = buildQuizAttempt(answered, "drill", crypto.randomUUID());
+    const updated: StudySession = { ...previous, quizQuestions: answered, quizAttempts: [...(previous.quizAttempts || []), entry] };
     set(state => ({ currentSession: updated, sessions: state.sessions.map(s => s.id === updated.id ? updated : s) }));
     // Exam submission must be durable immediately, even if the student reloads at once.
     void saveSessionToDB(updated);

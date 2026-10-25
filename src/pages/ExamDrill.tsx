@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Timer, Trophy } from "lucide-react";
 import { useAppStore } from "@/lib/store";
@@ -9,6 +9,7 @@ export default function ExamDrill() {
   const questions = session?.quizQuestions ?? [];
   const submitAnswers = useAppStore(s => s.submitQuizAnswers);
   const [phase, setPhase] = useState<Phase>("intro");
+  const submittedRef = useRef(false);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [left, setLeft] = useState(0);
@@ -17,8 +18,8 @@ export default function ExamDrill() {
   const positive = weighted ? 4 : 1;
   const negative = weighted ? -1 : 0;
   const minutes = Math.max(5, Math.round(questions.length * 1.5));
-  const start = () => { setAnswers({}); setIndex(0); setLeft(minutes * 60); setPhase("active"); };
-  const finish = () => { submitAnswers(answers); setPhase("results"); };
+  const start = () => { submittedRef.current = false; setAnswers({}); setIndex(0); setLeft(minutes * 60); setPhase("active"); };
+  const finish = () => { if (submittedRef.current) return; submittedRef.current = true; submitAnswers(answers); setPhase("results"); };
   useEffect(() => {
     if (phase !== "active") return;
     const timer = window.setInterval(() => setLeft(s=>Math.max(0,s-1)),1000);

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { BrainCircuit, Timer, LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, BookOpen, Sun, Moon, Zap, AlertTriangle, Target, TrendingDown, Network, Menu, X, Swords, UserRound, Trophy } from "lucide-react";
+import { BrainCircuit, Timer, CalendarClock, ClipboardList, LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, BookOpen, Sun, Moon, Zap, AlertTriangle, Target, TrendingDown, Network, Menu, X, Swords, UserRound, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
 import { useAppStore } from "@/lib/store";
@@ -17,6 +17,8 @@ const navItems = [
   { path: "/dashboard", label: "Progress", icon: LayoutDashboard },
   { path: "/coach", label: "Study Coach", icon: BrainCircuit },
   { path: "/drill", label: "Exam Drill", icon: Timer },
+  { path: "/review", label: "Due Reviews", icon: CalendarClock },
+  { path: "/mistakes", label: "Mistake Book", icon: ClipboardList },
   { path: "/flashcards", label: "Flashcards", icon: Layers },
   { path: "/quiz", label: "Quiz Battle", icon: HelpCircle },
   { path: "/roadmap", label: "Roadmap", icon: Map },
@@ -86,7 +88,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <span className="pixel-text text-[0.7rem] leading-[1.5] text-foreground">FLASH<br /><span className="text-primary">LEARN</span></span>
           </Link>
           <nav aria-label="Main navigation" className="hidden xl:flex items-center gap-1">
-            {navItems.filter((item) => ["/", "/flashcards", "/quiz", "/battle", "/tutor", "/rewards"].includes(item.path)).map(renderLink)}
+            {navItems.filter((item) => ["/", "/flashcards", "/review", "/quiz", "/battle", "/tutor", "/rewards"].includes(item.path)).map(renderLink)}
           </nav>
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost" size="icon" title="Customize your hero"><Link to="/avatar" aria-label="Customize your hero"><PlayerAvatar avatar={avatar} size={34} /></Link></Button>

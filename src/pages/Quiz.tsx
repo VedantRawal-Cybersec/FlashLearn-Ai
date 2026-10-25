@@ -13,6 +13,7 @@ export default function Quiz() {
   const answerQuestion = useAppStore((s) => s.answerQuizQuestion);
   const awardXp = usePlayer((s) => s.awardXp);
   const resetQuizAnswers = useAppStore((s) => s.resetQuizAnswers);
+  const finishQuizAttempt = useAppStore((s) => s.finishQuizAttempt);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [animKey, setAnimKey] = useState(0);
@@ -147,7 +148,7 @@ export default function Quiz() {
               Next <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (
-            <Button onClick={() => setShowResults(true)} className="hover-scale">See Results</Button>
+            <Button onClick={() => { finishQuizAttempt(); setShowResults(true); }} className="hover-scale">See Results</Button>
           )}
         </div>
       )}
