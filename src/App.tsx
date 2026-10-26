@@ -16,6 +16,7 @@ const LearningInsights = lazy(() => import("@/pages/LearningInsights"));
 const StudyCircles = lazy(() => import("@/pages/StudyCircles"));
 const AdvancedFormats = lazy(() => import("@/pages/AdvancedFormats"));
 const LanguageLab = lazy(() => import("@/pages/LanguageLab"));
+const HandwritingReview = lazy(() => import("@/pages/HandwritingReview"));
 const RescueMode = lazy(() => import("@/pages/RescueMode"));
 const ExamPlanner = lazy(() => import("@/pages/ExamPlanner"));
 const ConceptLab = lazy(() => import("@/pages/ConceptLab"));
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/circles" element={<StudyCircles />} />
             <Route path="/advanced-formats" element={<AdvancedFormats />} />
             <Route path="/languages" element={<LanguageLab />} />
+            <Route path="/handwriting" element={<HandwritingReview />} />
             <Route path="/rescue" element={<RescueMode />} />
             <Route path="/planner" element={<ExamPlanner />} />
             <Route path="/labs" element={<ConceptLab />} />
