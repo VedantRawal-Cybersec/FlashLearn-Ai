@@ -58,6 +58,8 @@ test("exam pattern mistakes persist separately after refresh",async({page})=>{
   await page.goto("/");
   await page.getByRole("button",{name:"Try NEET Biology demo"}).click();
   await page.goto("/pattern-lab");
+  // Exam Pattern Lab starts on JEE Main; switch explicitly to NEET before testing its bank.
+  await page.getByRole("button",{name:"NEET UG"}).click();
   await page.getByRole("button",{name:"Begin mini practice"}).click();
   await page.getByRole("button",{name:"Submit early"}).click();
   await page.goto("/mistakes");
