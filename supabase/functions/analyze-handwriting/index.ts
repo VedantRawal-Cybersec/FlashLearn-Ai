@@ -14,7 +14,7 @@ Deno.serve(async(req)=>{
     const bearer=req.headers.get("authorization")||"";
     if(!bearer.startsWith("Bearer "))return reply({error:"Sign-in required"},401);
     const url=Deno.env.get("SUPABASE_URL");
-    const publishable=Deno.env.get("SUPABASE_ANON_KEY");
+    const publishable=Deno.env.get("SUPABASE_PUBLISHABLE_KEY") || Deno.env.get("SUPABASE_ANON_KEY");
     const gatewayKey=Deno.env.get("LOVABLE_API_KEY");
     if(!url||!publishable||!gatewayKey)return reply({error:"AI analysis service is not configured"},503);
     const supabase=createClient(url,publishable,{
@@ -25,7 +25,26 @@ Deno.serve(async(req)=>{
     if(authError||!user)return reply({error:"Sign-in required"},401);
     const len=Number(req.headers.get("content-length")||0);
     if(len>3_200_000)return reply({error:"Image exceeds maximum supported size"},413);
-    const body=await req.json();
+    // Enforce a streaming request size cap even when Content-Length is missing.
+    const reader=req.body?.getReader();
+    if(!reader)return reply({error:"Missing image request"},400);
+    const chunks:Uint8Array[]=[];
+    let total=0;
+    while(true){
+      const next=await reader.read();
+      if(next.done)break;
+      if(next.value){
+        total+=next.value.byteLength;
+        if(total>3_200_000){await reader.cancel();return reply({error:"Request exceeds 3.2 MB"},413)}
+        chunks.push(next.value);
+      }
+    }
+    const bytes=new Uint8Array(total);
+    let offset=0;
+    for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength}
+    let body:Record<string,unknown>;
+    try{body=JSON.parse(new TextDecoder().decode(bytes))}
+    catch{return reply({error:"Malformed image request"},400)}
     const b64=body?.imageBase64;
     const fileType=body?.fileType;
     const question=typeof body?.question==="string"?body.question.trim().slice(0,1800):"";

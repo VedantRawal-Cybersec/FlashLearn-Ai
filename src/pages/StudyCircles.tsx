@@ -13,6 +13,10 @@ export default function StudyCircles(){
   const share=()=>{
     // No student information, scores, or account IDs enter a shared URL.
     const link=window.location.origin+"/circles?track="+encodeURIComponent(track);
+    if (!navigator.clipboard?.writeText) {
+      setMessage("Copy this link manually: "+link);
+      return;
+    }
     void navigator.clipboard.writeText(link).then(()=>setMessage("Share link copied. It contains only the chosen sample track."),()=>{
       setMessage("Copy this link manually: "+link);
     });
