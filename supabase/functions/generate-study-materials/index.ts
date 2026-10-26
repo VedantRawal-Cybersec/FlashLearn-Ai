@@ -402,6 +402,11 @@ Make all materials educational, specific to the content and calibrated to the se
     videoUrl: sourceUrl,
     createdAt: new Date().toISOString(),
     generation,
+    sourceContext: {
+      kind: sourceUrl.startsWith("file://") ? "uploaded-document" : "youtube-captions",
+      text: content.slice(0,6000),
+      truncated: content.length > 6000,
+    },
     flashcards: materials.flashcards.map((c: any, i: number) => ({
       id: `fc-${i}`, front: c.front, back: c.back, difficulty: null,
     })),

@@ -48,6 +48,7 @@ export interface StudySession {
   roadmap: RoadmapItem[];
   createdAt: string;
   generation?: GenerationInfo;
+  sourceContext?: { kind: "youtube-captions" | "uploaded-document"; text: string; truncated: boolean };
   quizAttempts?: QuizAttempt[];
   questionReports?: { id: string; questionId: string; reason: string; createdAt: string }[];
 }

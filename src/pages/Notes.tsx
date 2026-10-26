@@ -22,7 +22,7 @@ export default function Notes() {
   const handleGenerate = async () => {
     setLoading(true);
     try {
-      const context = session.flashcards
+      const context = session.sourceContext?.text || session.flashcards
         .map((c) => `Q: ${c.front}\nA: ${c.back}`)
         .join("\n\n");
 

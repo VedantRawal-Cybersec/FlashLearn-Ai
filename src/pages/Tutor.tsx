@@ -470,7 +470,7 @@ export default function Tutor() {
           body: {
             messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
             videoTitle: session.title,
-            context: session.flashcards.map((c) => `Q: ${c.front} A: ${c.back}`).join("\n"),
+            context: session.sourceContext?.text || session.flashcards.map((c) => `Q: ${c.front} A: ${c.back}`).join("\n"),
             level,
             mode: askMode,
           },
