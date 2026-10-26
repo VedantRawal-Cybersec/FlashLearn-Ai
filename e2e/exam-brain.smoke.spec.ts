@@ -66,3 +66,11 @@ test("exam pattern mistakes persist separately after refresh",async({page})=>{
   await page.reload();
   await expect(page.getByText(/Which cell structures translate messenger RNA/)).toBeVisible();
 });
+
+test("landing page exposes Exam Brain and Rescue Mode without a prior session",async({page})=>{
+  await page.goto("/");
+  await expect(page.getByRole("heading",{name:"Turn a missed question into a comeback"})).toBeVisible();
+  await page.getByRole("button",{name:/Exam Brain.*See which concepts/}).click();
+  await expect(page).toHaveURL(/\/brain$/);
+  await expect(page.getByRole("heading",{name:"Exam Brain"})).toBeVisible();
+});
