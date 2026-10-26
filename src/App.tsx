@@ -12,6 +12,8 @@ const ExamDrill = lazy(() => import("@/pages/ExamDrill"));
 const ReviewQueue = lazy(() => import("@/pages/ReviewQueue"));
 const ExamBrain = lazy(() => import("@/pages/ExamBrain"));
 const Account = lazy(() => import("@/pages/Account"));
+const LearningInsights = lazy(() => import("@/pages/LearningInsights"));
+const StudyCircles = lazy(() => import("@/pages/StudyCircles"));
 const RescueMode = lazy(() => import("@/pages/RescueMode"));
 const ExamPlanner = lazy(() => import("@/pages/ExamPlanner"));
 const ConceptLab = lazy(() => import("@/pages/ConceptLab"));
@@ -53,6 +55,8 @@ const App = () => (
             <Route path="/review" element={<ReviewQueue />} />
             <Route path="/brain" element={<ExamBrain />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/insights" element={<LearningInsights />} />
+            <Route path="/circles" element={<StudyCircles />} />
             <Route path="/rescue" element={<RescueMode />} />
             <Route path="/planner" element={<ExamPlanner />} />
             <Route path="/labs" element={<ConceptLab />} />
