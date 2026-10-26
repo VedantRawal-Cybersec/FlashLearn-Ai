@@ -11,6 +11,7 @@ const Coach = lazy(() => import("@/pages/Coach"));
 const ExamDrill = lazy(() => import("@/pages/ExamDrill"));
 const ReviewQueue = lazy(() => import("@/pages/ReviewQueue"));
 const ExamBrain = lazy(() => import("@/pages/ExamBrain"));
+const Account = lazy(() => import("@/pages/Account"));
 const RescueMode = lazy(() => import("@/pages/RescueMode"));
 const ExamPlanner = lazy(() => import("@/pages/ExamPlanner"));
 const ConceptLab = lazy(() => import("@/pages/ConceptLab"));
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/drill" element={<ExamDrill />} />
             <Route path="/review" element={<ReviewQueue />} />
             <Route path="/brain" element={<ExamBrain />} />
+            <Route path="/account" element={<Account />} />
             <Route path="/rescue" element={<RescueMode />} />
             <Route path="/planner" element={<ExamPlanner />} />
             <Route path="/labs" element={<ConceptLab />} />
