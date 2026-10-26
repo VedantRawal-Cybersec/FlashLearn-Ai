@@ -20,7 +20,6 @@ export default function ExamPatternLab() {
   const [flagged,setFlagged]=useState<string[]>([]);
   const [seconds,setSeconds]=useState(0);
   const saved=useRef(false);
-  const current=useAppStore(s=>s.currentSession);
   const record=useAppStore(s=>s.recordPracticeAttempt);
   const spec=EXAM_SPECS[exam];
   const items=useMemo(()=>exam==="jee-advanced"?[]:getPatternPractice(exam),[exam]);
@@ -32,11 +31,11 @@ export default function ExamPatternLab() {
   const finish=()=>{
     if(saved.current)return;
     saved.current=true;
-    if(current)record(items.filter(q=>q.type==="mcq").map(q=>({
+    record(items.filter(q=>q.type==="mcq").map(q=>({
       id:q.id, question:q.prompt, topic:q.topic, options:q.options||[],
       correctIndex:q.correctIndex??0, explanation:q.explanation, questionType:"conceptual",
       userAnswer:answers[q.id]===undefined?undefined:Number(answers[q.id]),
-    } as QuizQuestion)));
+    } as QuizQuestion)), "SAMPLE · "+EXAM_SPECS[exam].name+" mini practice");
     setPhase("results");
   };
   useEffect(()=>{if(phase!=="active")return;const t=setInterval(()=>setSeconds(s=>Math.max(0,s-1)),1000);return()=>clearInterval(t)},[phase]);
@@ -85,7 +84,7 @@ export default function ExamPatternLab() {
       <section className="pixel-panel p-6 text-center space-y-2">
         <h2 className="text-2xl font-bold">Mini practice results</h2><p className="text-3xl font-bold">{mark.points} / {mark.maxPoints}</p>
         <p>{mark.correct} correct · {mark.wrong} wrong · {mark.skipped} skipped</p>
-        <p className="text-sm text-muted-foreground">{current?"MCQ answers saved in your local attempt history; numerical results are displayed here only.":"Start a study session first to preserve MCQ attempt history."}</p>
+        <p className="text-sm text-muted-foreground">MCQ evidence is saved as a separate local practice session. Integer-entry results are shown here only and are not yet part of cross-session analysis.</p>
       </section>
       {items.map((q,i)=><article key={q.id} className="pixel-panel p-5 space-y-2">
         <h3 className="font-semibold">{i+1}. {q.prompt}</h3>

@@ -469,6 +469,31 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ============ EXAM BRAIN: FAST START ============ */}
+      <section className="cv-auto relative py-7 md:py-10" aria-labelledby="exam-brain-start">
+        <div className="mx-auto max-w-[1120px] px-5 sm:px-8">
+          <div className="pixel-panel-dark p-6 sm:p-8 space-y-5">
+            <div>
+              <p className="pixel-text text-[0.55rem] text-pixel-gold mb-3">YOUR PERSONAL LEARNING SYSTEM</p>
+              <h2 id="exam-brain-start" className="text-2xl md:text-3xl font-bold text-cream">Turn a missed question into a comeback</h2>
+              <p className="pixel-body text-base text-cream/75 mt-2">Understand what you missed, practise another problem, and plan your next review. Start with a free sample if you're new.</p>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-3">
+              {[
+                {name:"Exam Brain",route:"/brain",detail:"See which concepts need attention"},
+                {name:"Rescue Mission",route:"/rescue",detail:"Try a fresh problem after a mistake"},
+                {name:"Exam-Day Planner",route:"/planner",detail:"Build your own 7-day mission plan"},
+              ].map(item=><button key={item.route} type="button" onClick={()=>navigate(item.route)}
+                className="text-left px-5 py-4 border-2 border-cream/30 bg-ink/20 hover:border-pixel-gold hover:bg-ink/40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-pixel-gold transition-colors rounded-lg">
+                <strong className="text-cream block">{item.name} ↗</strong>
+                <span className="text-cream/70 pixel-body block text-sm mt-2">{item.detail}</span>
+              </button>)}
+            </div>
+            <p className="text-xs text-cream/60">Your learning records stay on this device. Practice questions are original examples, not verified official past papers.</p>
+          </div>
+        </div>
+      </section>
+
       {/* ============ CHOOSE YOUR QUEST ============ */}
       <section className="cv-auto relative py-5 md:py-8">
         <PipeRun d="M0 40 L120 40 L120 160 L20 160" color="hsl(var(--pixel-pink))" className="reveal absolute left-0 top-24 w-[16%] h-[280px] hidden lg:block opacity-80" />
