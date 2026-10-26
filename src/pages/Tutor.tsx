@@ -470,7 +470,7 @@ export default function Tutor() {
           body: {
             messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
             videoTitle: session.title,
-            context: session.flashcards.map((c) => `Q: ${c.front} A: ${c.back}`).join("\n"),
+            context: session.sourceContext?.text || session.flashcards.map((c) => `Q: ${c.front} A: ${c.back}`).join("\n"),
             level,
             mode: askMode,
           },
@@ -631,6 +631,15 @@ export default function Tutor() {
         </div>
       </div>
 
+      <details className="mb-2 sm:mb-3 rounded-lg border border-border bg-card p-2 text-xs">
+        <summary className="cursor-pointer font-medium">{session.sourceContext?.text
+          ? "Original lesson excerpt available (expand to inspect)" : "Original source excerpt unavailable for this session"}</summary>
+        {session.sourceContext?.text ? <div className="mt-2 space-y-2">
+          <p className="text-muted-foreground">Based on {session.sourceContext.kind === "youtube-captions" ? "video captions" : "extracted document text"}. This is a bounded excerpt, not the complete lecture or verified external evidence.</p>
+          <pre className="whitespace-pre-wrap break-words max-h-36 overflow-auto rounded bg-background p-2">{session.sourceContext.text}</pre>
+          {session.sourceContext.truncated && <p>Long source: excerpt truncated. Claims outside these words cannot be attributed to the excerpt.</p>}
+        </div> : <p className="mt-2 text-muted-foreground">Older sessions use generated flashcards as secondary context. No page or timestamp citations are available.</p>}
+      </details>
       {/* Mode + Level controls */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-2 sm:mb-3">
         <Tabs value={chatMode} onValueChange={(v) => setChatMode(v as ChatMode)}>

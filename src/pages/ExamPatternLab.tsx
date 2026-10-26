@@ -58,6 +58,7 @@ export default function ExamPatternLab() {
     {exam==="jee-advanced"?<section className="pixel-panel p-6 space-y-2">
       <h2 className="font-bold text-xl">Paper-specific format unavailable</h2>
       <p>JEE Advanced marks and question types vary by paper. We will not misrepresent a fixed generic MCQ set as an authentic Advanced paper. Refer to official instructions.</p>
+      <Link className="pixel-btn inline-block" to="/advanced-formats">Try original multiple-correct format demonstrations</Link>
     </section>:phase==="intro"?<section className="pixel-panel p-6 space-y-4">
       <h2 className="text-xl font-bold">Mini practice · {items.length} questions</h2>
       <p>{exam==="jee-main"?"Includes 5 original MCQs and 3 integer-entry numericals.":"Includes 5 original Biology MCQs."}</p>

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { BrainCircuit, Timer, CalendarClock, ClipboardList, Atom, Compass, HeartPulse, CalendarDays, BookCheck, PencilRuler, LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, BookOpen, Sun, Moon, Zap, AlertTriangle, Target, TrendingDown, Network, Menu, X, Swords, UserRound, Trophy } from "lucide-react";
+import { ScanText, Languages, BookOpenCheck, Users, BarChart3, Cloud, BrainCircuit, Timer, CalendarClock, ClipboardList, Atom, Compass, HeartPulse, CalendarDays, BookCheck, PencilRuler, LayoutDashboard, Layers, HelpCircle, Map, MessageCircle, BookOpen, Sun, Moon, Zap, AlertTriangle, Target, TrendingDown, Network, Menu, X, Swords, UserRound, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
 import { useAppStore } from "@/lib/store";
@@ -16,6 +16,12 @@ const navItems = [
   { path: "/rewards", label: "Rewards", icon: Trophy },
   { path: "/dashboard", label: "Progress", icon: LayoutDashboard },
   { path: "/coach", label: "Study Coach", icon: BrainCircuit },
+  { path: "/account", label: "My Account", icon: Cloud },
+  { path: "/insights", label: "Learning Insights", icon: BarChart3 },
+  { path: "/circles", label: "Study Circles", icon: Users },
+  { path: "/advanced-formats", label: "Advanced Formats", icon: BookOpenCheck },
+  { path: "/languages", label: "Bilingual Glossary", icon: Languages },
+  { path: "/handwriting", label: "Handwriting Review", icon: ScanText },
   { path: "/brain", label: "Exam Brain", icon: Compass },
   { path: "/rescue", label: "Rescue Mode", icon: HeartPulse },
   { path: "/planner", label: "Study Planner", icon: CalendarDays },
