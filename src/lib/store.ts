@@ -226,13 +226,14 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   recordPracticeAttempt: (questions, label) => {
     if (!questions.length) return;
-    const entry = buildQuizAttempt(questions,"drill",crypto.randomUUID());
     if (label) {
-      // Keep exam-pattern practice separate from the user's uploaded lesson.
-      // The practice questions remain available for rescue and mistake reporting.
+      // Preserve each attempt with unique question IDs across sessions.
+      const id = crypto.randomUUID();
+      const uniquelyIdentified = questions.map(q => ({...q,id:id+"-"+q.id}));
+      const entry = buildQuizAttempt(uniquelyIdentified,"drill",crypto.randomUUID());
       const session:StudySession = {
-        id:crypto.randomUUID(),title:label.slice(0,120),videoUrl:"",createdAt:new Date().toISOString(),
-        flashcards:[],roadmap:[],quizQuestions:questions.map(({userAnswer,...q})=>q),
+        id,title:label.slice(0,120),videoUrl:"",createdAt:new Date().toISOString(),
+        flashcards:[],roadmap:[],quizQuestions:uniquelyIdentified.map(({userAnswer,...q})=>q),
         quizAttempts:[entry],
       };
       const state=get();
@@ -241,6 +242,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       void saveSessionToDB(session);
       return;
     }
+    const entry = buildQuizAttempt(questions,"drill",crypto.randomUUID());
     const previous = get().currentSession;
     if (!previous) return;
     const updated:StudySession = {...previous,

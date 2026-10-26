@@ -48,8 +48,21 @@ test("Rescue mission uses real wrong answers and records a retest",async({page})
   await page.goto("/brain");
   await expect(page.getByText("Cell biology").first()).toBeVisible();
   await page.goto("/rescue");
-  await expect(page.getByText(/Which cell structures translate messenger RNA/)).toBeVisible();
-  await page.getByRole("button",{name:"B. Ribosomes"}).click();
+  await expect(page.getByText(/which RNA type delivers amino acids to the ribosome/i)).toBeVisible();
+  await page.getByRole("button",{name:"C. tRNA"}).click();
   await page.getByRole("button",{name:"Check my reasoning"}).click();
   await expect(page.getByText("Correct on this retry.")).toBeVisible();
+});
+
+test("exam pattern mistakes persist separately after refresh",async({page})=>{
+  await page.goto("/");
+  await page.getByRole("button",{name:"Try NEET Biology demo"}).click();
+  await page.goto("/pattern-lab");
+  await page.getByRole("button",{name:"Begin mini practice"}).click();
+  await page.getByRole("button",{name:"Submit early"}).click();
+  await page.goto("/mistakes");
+  await expect(page.getByText(/distinct questions to revisit/)).toBeVisible();
+  await expect(page.getByText(/Which cell structures translate messenger RNA/)).toBeVisible();
+  await page.reload();
+  await expect(page.getByText(/Which cell structures translate messenger RNA/)).toBeVisible();
 });

@@ -20,7 +20,6 @@ export default function ExamPatternLab() {
   const [flagged,setFlagged]=useState<string[]>([]);
   const [seconds,setSeconds]=useState(0);
   const saved=useRef(false);
-  const current=useAppStore(s=>s.currentSession);
   const record=useAppStore(s=>s.recordPracticeAttempt);
   const spec=EXAM_SPECS[exam];
   const items=useMemo(()=>exam==="jee-advanced"?[]:getPatternPractice(exam),[exam]);
