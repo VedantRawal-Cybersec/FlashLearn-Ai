@@ -68,7 +68,7 @@ export function pickRescue(sessions: StudySession[]): { concept: ConceptInsight;
   const concepts = getLearningInsights(sessions).filter(c => c.mistakes.length);
   for (const concept of concepts) {
     const wrongIds = new Set(concept.mistakes.map(m => m.questionId));
-    const found = sessions.flatMap(s => s.quizQuestions.map(q => ({ s, q })))
+    const found = sessions.flatMap(s => [...s.quizQuestions,...(s.practiceQuestions||[])].map(q => ({ s, q })))
       .find(({ q }) => wrongIds.has(q.id));
     if (found) return { concept, sessionId: found.s.id, questionId: found.q.id };
   }

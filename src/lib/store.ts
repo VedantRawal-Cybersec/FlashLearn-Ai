@@ -44,6 +44,7 @@ export interface StudySession {
   videoUrl: string;
   flashcards: Flashcard[];
   quizQuestions: QuizQuestion[];
+  practiceQuestions?: QuizQuestion[];
   roadmap: RoadmapItem[];
   createdAt: string;
   generation?: GenerationInfo;
@@ -65,7 +66,8 @@ interface AppState {
   updateFlashcardDifficulty: (cardId: string, difficulty: 'easy' | 'medium' | 'hard') => void;
   reviewFlashcard: (sessionId: string, cardId: string, rating: ReviewRating) => void;
   finishQuizAttempt: () => void;
-  recordPracticeAttempt: (questions: QuizQuestion[]) => void;
+  recordPracticeAttempt: (questions: QuizQuestion[], label?: string) => void;
+  recordRescueAttempt: (sessionId: string, question: QuizQuestion) => void;
   reportQuestion: (sessionId: string, questionId: string, reason: string) => boolean;
   importBackupData: (data: unknown) => number;
   answerQuizQuestion: (questionId: string, answerIndex: number) => void;
@@ -214,7 +216,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   reportQuestion: (sessionId, questionId, reason) => {
     const previous = get().sessions.find(s=>s.id===sessionId) || (get().currentSession?.id===sessionId?get().currentSession:null);
-    if (!previous || !previous.quizQuestions.some(q => q.id === questionId) || reason.trim().length < 5 || reason.length > 500) return false;
+    if (!previous || !(previous.quizQuestions.some(q => q.id === questionId)||(previous.practiceQuestions||[]).some(q=>q.id===questionId)) || reason.trim().length < 5 || reason.length > 500) return false;
     const item = { id: crypto.randomUUID(), questionId, reason: reason.trim(), createdAt: new Date().toISOString() };
     const updated: StudySession = { ...previous, questionReports: [...(previous.questionReports || []), item] };
     set(state => ({currentSession:state.currentSession?.id===sessionId?updated:state.currentSession,sessions:state.sessions.map(s => s.id === updated.id ? updated : s)}));
@@ -222,12 +224,46 @@ export const useAppStore = create<AppState>((set, get) => ({
     return true; // local-only; never imply a report was submitted to staff.
   },
 
-  recordPracticeAttempt: (questions) => {
-    const previous = get().currentSession;
-    if (!previous || questions.length === 0) return;
+  recordPracticeAttempt: (questions, label) => {
+    if (!questions.length) return;
     const entry = buildQuizAttempt(questions,"drill",crypto.randomUUID());
-    const updated: StudySession = { ...previous, quizAttempts: [...(previous.quizAttempts || []),entry] };
-    set(state => ({currentSession:updated,sessions:state.sessions.map(s => s.id===updated.id ? updated : s)}));
+    if (label) {
+      // Keep exam-pattern practice separate from the user's uploaded lesson.
+      // The practice questions remain available for rescue and mistake reporting.
+      const session:StudySession = {
+        id:crypto.randomUUID(),title:label.slice(0,120),videoUrl:"",createdAt:new Date().toISOString(),
+        flashcards:[],roadmap:[],quizQuestions:questions.map(({userAnswer,...q})=>q),
+        quizAttempts:[entry],
+      };
+      const state=get();
+      set({sessions:[session,...state.sessions],currentSession:session});
+      try {localStorage.setItem(SELECTED_KEY,session.id)}catch{}
+      void saveSessionToDB(session);
+      return;
+    }
+    const previous = get().currentSession;
+    if (!previous) return;
+    const updated:StudySession = {...previous,
+      practiceQuestions:[...(previous.practiceQuestions||[]),...questions.filter(q=>
+        !previous.quizQuestions.some(old=>old.id===q.id) && !(previous.practiceQuestions||[]).some(old=>old.id===q.id))
+        .map(({userAnswer,...q})=>q)],
+      quizAttempts:[...(previous.quizAttempts||[]),entry],
+    };
+    set(state=>({currentSession:updated,sessions:state.sessions.map(s=>s.id===updated.id?updated:s)}));
+    void saveSessionToDB(updated);
+  },
+
+  recordRescueAttempt: (sessionId, question) => {
+    const old=get().sessions.find(s=>s.id===sessionId) || (get().currentSession?.id===sessionId?get().currentSession:null);
+    if(!old)return;
+    const entry=buildQuizAttempt([question],"quiz",crypto.randomUUID());
+    const stored=old.quizQuestions.some(q=>q.id===question.id)||(old.practiceQuestions||[]).some(q=>q.id===question.id);
+    const updated:StudySession={...old,
+      practiceQuestions:stored?old.practiceQuestions:[...(old.practiceQuestions||[]),(({userAnswer,...q})=>q)(question)],
+      quizAttempts:[...(old.quizAttempts||[]),entry],
+    };
+    set(state=>({sessions:state.sessions.map(s=>s.id===sessionId?updated:s),
+      currentSession:state.currentSession?.id===sessionId?updated:state.currentSession}));
     void saveSessionToDB(updated);
   },
 
